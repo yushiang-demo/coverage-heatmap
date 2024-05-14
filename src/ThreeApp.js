@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import vertexShader from "./shaders/vertexShader";
+import fragmentShader from "./shaders/fragmentShader";
 
 function ThreeApp(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
@@ -20,6 +22,41 @@ function ThreeApp(canvas) {
 
   const gridHelper = new THREE.GridHelper(20, 20);
   scene.add(gridHelper);
+
+  const geometry = new THREE.SphereGeometry(0.1, 16, 16);
+  const material = new THREE.MeshBasicMaterial({
+    color: 0,
+    wireframe: true,
+  });
+  const accessPoint = new THREE.Mesh(geometry, material);
+  accessPoint.position.set(0, 0.5, 0);
+  scene.add(accessPoint);
+
+  const wall = new THREE.Box3(
+    new THREE.Vector3(0.5, 0, -0.5),
+    new THREE.Vector3(1.5, 1, 1.5)
+  );
+  const helper = new THREE.Box3Helper(wall, 0);
+  scene.add(helper);
+
+  const floorGeometry = new THREE.BoxGeometry(10, 10, 5);
+  floorGeometry.translate(3, -3, 2.5);
+  const heatmapMaterial = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    uniforms: {
+      aps: {
+        value: [accessPoint.position],
+      },
+      walls: {
+        value: [wall.min, wall.max],
+      },
+    },
+    vertexShader,
+    fragmentShader,
+  });
+  const heatmap = new THREE.Mesh(floorGeometry, heatmapMaterial);
+  heatmap.rotateX(-Math.PI / 2);
+  scene.add(heatmap);
 
   camera.position.z = 5;
 
