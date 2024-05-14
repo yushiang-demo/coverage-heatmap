@@ -11,8 +11,8 @@ vec3 hsv2rgb(vec3 c) {
 
 vec3 opacityToHSV(float opacity) {
   // Define the range of hues (0.0 to 1.0)
-  float minHue = 0.0;
-  float maxHue = 1.0;
+  float minHue = 1.0;
+  float maxHue = 0.0;
 
   // Map opacity to hue
   float hue = mix(minHue, maxHue, opacity);
@@ -22,7 +22,7 @@ vec3 opacityToHSV(float opacity) {
 }
 
 float decay(float distance) {
-  return 1.0 - 1.0 / pow(distance * 5e-2 + 1.0, 2.0);
+  return 1.0 / pow(distance * 5e-2 + 1.0, 2.0);
 }
 
 // adapted from intersectCube in https://github.com/evanw/webgl-path-tracing/blob/master/webgl-path-tracing.js
@@ -51,7 +51,8 @@ void main() {
     return;
   }
 
-  float wallDecay = (nearFar.x - nearFar.y) * 0.15;
-  gl_FragColor = vec4(opacityToHSV(density - wallDecay), 1.0);
+  float wallDecay = (nearFar.y - nearFar.x) * 0.15;
+  float newDensity = density - wallDecay;
+  gl_FragColor = vec4(opacityToHSV(newDensity), 1.0);
 }
 `;
