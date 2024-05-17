@@ -1,6 +1,9 @@
-export default `
-uniform vec3 aps[1];
-uniform vec3 walls[2];
+const getFragmentShader = (apCount, wallCount) => `
+uniform vec3 aps[${apCount}];
+uniform int apCount;
+uniform vec3 walls[${wallCount * 2}];
+uniform int wallCount;
+
 varying vec4 world_position;
 
 vec3 hsv2rgb(vec3 c) {
@@ -39,20 +42,30 @@ vec2 intersectAABB(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax) {
 }
 
 void main() {
-  float distance = distance(world_position.xyz, aps[0].xyz);
-  float density = decay(distance);
 
-  vec3 rayDir = normalize(world_position.xyz - aps[0].xyz);
-  vec2 nearFar = intersectAABB(aps[0].xyz, rayDir, walls[0], walls[1]);
+  float density = 0.0;
+  float wallDistance = 0.0;
+  for(int apIndex=0; apIndex < apCount; apIndex++) {
+    vec3 apPosition =  aps[apIndex].xyz;
+    float totalDistance = distance(world_position.xyz, apPosition);
 
-  bool noIntersections = nearFar.x > nearFar.y || nearFar.x < 0.0;
-  if (noIntersections) {
-    gl_FragColor = vec4(opacityToHSV(density), 1.0);
-    return;
+    for (int wallIndex = 0; wallIndex < wallCount; wallIndex++) {
+      vec3 rayDir = normalize(world_position.xyz - apPosition);
+      vec2 nearFar = intersectAABB(apPosition, rayDir, walls[2 * wallIndex], walls[2 * wallIndex + 1]);
+      bool noIntersections = nearFar.x > nearFar.y || nearFar.x < 0.0;
+      if (noIntersections) {
+        continue;
+      }
+      wallDistance += nearFar.y - nearFar.x;
+    }
+
+    float wallDecay = wallDistance * 0.15;
+    float newDensity = min(1.0, decay(totalDistance - wallDistance) - wallDecay);
+    density = max(newDensity, density);
   }
 
-  float wallDecay = (nearFar.y - nearFar.x) * 0.15;
-  float newDensity = density - wallDecay;
-  gl_FragColor = vec4(opacityToHSV(newDensity), 1.0);
+  gl_FragColor = vec4(opacityToHSV(density), 1.0);
 }
 `;
+
+export default getFragmentShader;

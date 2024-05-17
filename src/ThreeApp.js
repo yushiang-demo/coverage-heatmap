@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import vertexShader from "./shaders/vertexShader";
-import fragmentShader from "./shaders/fragmentShader";
+import getFragmentShader from "./shaders/fragmentShader";
 
 function ThreeApp(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
@@ -28,31 +28,56 @@ function ThreeApp(canvas) {
     color: 0,
     wireframe: true,
   });
-  const accessPoint = new THREE.Mesh(geometry, material);
-  accessPoint.position.set(0, 0.5, 0);
-  scene.add(accessPoint);
 
-  const wall = new THREE.Box3(
-    new THREE.Vector3(0.5, 0, -0.5),
-    new THREE.Vector3(1.5, 1, 1.5)
-  );
-  const helper = new THREE.Box3Helper(wall, 0);
-  scene.add(helper);
+  const aps = [
+    [0, 1e-3, 0],
+    [5, 1e-3, 5],
+  ].map((position) => {
+    const accessPoint = new THREE.Mesh(geometry, material);
+    accessPoint.position.fromArray(position);
+    scene.add(accessPoint);
+    return accessPoint;
+  });
 
-  const floorGeometry = new THREE.BoxGeometry(10, 10, 5);
-  floorGeometry.translate(3, -3, 2.5);
+  const walls = [
+    [
+      [0.5, 0, -4],
+      [1, 3, 1.5],
+    ],
+    [
+      [-5, 0, 1],
+      [0.5, 3, 1.5],
+    ],
+  ].map(([min, max]) => {
+    const wall = new THREE.Box3(
+      new THREE.Vector3().fromArray(min),
+      new THREE.Vector3().fromArray(max)
+    );
+    const helper = new THREE.Box3Helper(wall, 0);
+    scene.add(helper);
+    return wall;
+  });
+
+  const floorGeometry = new THREE.BoxGeometry(20, 20, 3);
+  floorGeometry.translate(0, 0, 1.5);
   const heatmapMaterial = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: {
+      wallCount: {
+        value: walls.length,
+      },
+      apCount: {
+        value: aps.length,
+      },
       aps: {
-        value: [accessPoint.position],
+        value: aps.map((ap) => ap.position),
       },
       walls: {
-        value: [wall.min, wall.max],
+        value: walls.flatMap((wall) => [wall.min, wall.max]),
       },
     },
     vertexShader,
-    fragmentShader,
+    fragmentShader: getFragmentShader(aps.length, walls.length),
   });
   const heatmap = new THREE.Mesh(floorGeometry, heatmapMaterial);
   heatmap.rotateX(-Math.PI / 2);
