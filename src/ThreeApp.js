@@ -58,11 +58,39 @@ function ThreeApp(canvas) {
     return wall;
   });
 
+  const vertexVectors = [
+    new THREE.Vector3(2, 0.0, 7),
+    new THREE.Vector3(7, 0.0, 2),
+    new THREE.Vector3(7, 3.0, 2),
+    new THREE.Vector3(2, 3.0, 7),
+    new THREE.Vector3(2, 0.0, 7),
+    new THREE.Vector3(7, 3.0, 2),
+  ];
+  const trianglesGeometry = new THREE.BufferGeometry();
+  const vertices = new Float32Array(
+    vertexVectors.flatMap((vec) => vec.toArray())
+  );
+  trianglesGeometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(vertices, 3)
+  );
+  console.log(trianglesGeometry.attributes.position.array);
+
+  const trianglesMaterial = new THREE.MeshBasicMaterial({
+    color: 0,
+    wireframe: true,
+  });
+  const mesh = new THREE.Mesh(trianglesGeometry, trianglesMaterial);
+  scene.add(mesh);
+
   const floorGeometry = new THREE.BoxGeometry(20, 20, 3);
   floorGeometry.translate(0, 0, 1.5);
   const heatmapMaterial = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: {
+      triangleCount: {
+        value: vertexVectors.length / 3,
+      },
       wallCount: {
         value: walls.length,
       },
@@ -75,9 +103,16 @@ function ThreeApp(canvas) {
       walls: {
         value: walls.flatMap((wall) => [wall.min, wall.max]),
       },
+      triangles: {
+        value: vertexVectors,
+      },
     },
     vertexShader,
-    fragmentShader: getFragmentShader(aps.length, walls.length),
+    fragmentShader: getFragmentShader(
+      aps.length,
+      walls.length,
+      vertexVectors.length / 3
+    ),
   });
   const heatmap = new THREE.Mesh(floorGeometry, heatmapMaterial);
   heatmap.rotateX(-Math.PI / 2);

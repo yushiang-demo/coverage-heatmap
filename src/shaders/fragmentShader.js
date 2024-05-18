@@ -1,8 +1,10 @@
-const getFragmentShader = (apCount, wallCount) => `
+const getFragmentShader = (apCount, wallCount, triangleCount) => `
 uniform vec3 aps[${apCount}];
 uniform int apCount;
 uniform vec3 walls[${wallCount * 2}];
 uniform int wallCount;
+uniform vec3 triangles[${triangleCount * 3}];
+uniform int triangleCount;
 
 varying vec4 world_position;
 
@@ -25,7 +27,7 @@ vec3 opacityToHSV(float opacity) {
 }
 
 float decay(float distance) {
-  return 1.0 / pow(distance * 5e-2 + 1.0, 2.0);
+  return 1.0 / pow(distance / 20.0 + 1.0, 2.0);
 }
 
 // adapted from intersectCube in https://github.com/evanw/webgl-path-tracing/blob/master/webgl-path-tracing.js
@@ -41,16 +43,46 @@ vec2 intersectAABB(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax) {
   return vec2(tNear, tFar);
 }
 
+float PointInOrOn( vec3 P1, vec3 P2, vec3 A, vec3 B ) {
+    vec3 CP1 = cross(B - A, P1 - A);
+    vec3 CP2 = cross(B - A, P2 - A);
+    return step(0.0, dot(CP1, CP2));
+}
+
+bool PointInTriangle( vec3 px, vec3 p0, vec3 p1, vec3 p2 ) {
+    return PointInOrOn(px, p0, p1, p2) * PointInOrOn(px, p1, p2, p0) * PointInOrOn(px, p2, p0, p1) < 1e-3;
+}
+
+vec3 IntersectPlane(vec3 rayOrigin, vec3 rayDir, vec3 p0, vec3 p1, vec3 p2) {
+    vec3 D = rayDir;
+    vec3 N = cross(p1-p0, p2-p0);
+    vec3 X = rayOrigin + D * dot(p0 - rayOrigin, N) / dot(D, N);
+
+    return X;
+}
+
+bool pointOnRay(vec3 point, vec3 rayOrigin, vec3 rayDir){
+  vec3 intersectionDir = normalize(rayOrigin - point);
+  return dot(intersectionDir, rayDir) < (1.0-1e-3);
+}
+
+bool IntersectTriangle(vec3 rayOrigin, vec3 rayDir, vec3 p0, vec3 p1, vec3 p2) {
+    vec3 x = IntersectPlane(rayOrigin, rayDir, p0, p1, p2);
+    return !PointInTriangle(x, p0, p1, p2) && pointOnRay(x, rayOrigin, rayDir);
+}
+
 void main() {
 
+  float maxApIndex = 0.0;
   float density = 0.0;
-  float wallDistance = 0.0;
   for(int apIndex=0; apIndex < apCount; apIndex++) {
-    vec3 apPosition =  aps[apIndex].xyz;
+    float wallDistance = 0.0;
+    vec3 apPosition = aps[apIndex].xyz;
+    vec3 rayDir = normalize(world_position.xyz - apPosition);
+
     float totalDistance = distance(world_position.xyz, apPosition);
 
     for (int wallIndex = 0; wallIndex < wallCount; wallIndex++) {
-      vec3 rayDir = normalize(world_position.xyz - apPosition);
       vec2 nearFar = intersectAABB(apPosition, rayDir, walls[2 * wallIndex], walls[2 * wallIndex + 1]);
       bool noIntersections = nearFar.x > nearFar.y || nearFar.x < 0.0;
       if (noIntersections) {
@@ -59,9 +91,23 @@ void main() {
       wallDistance += nearFar.y - nearFar.x;
     }
 
+    for(int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++) {
+      vec3 p0 = triangles[3*triangleIndex];
+      vec3 p1 = triangles[3*triangleIndex+1];
+      vec3 p2 = triangles[3*triangleIndex+2];
+      if(IntersectTriangle(apPosition, rayDir, p0, p1, p2)){
+        wallDistance += 0.15;
+      }
+    }
+
     float wallDecay = wallDistance * 0.15;
-    float newDensity = min(1.0, decay(totalDistance - wallDistance) - wallDecay);
-    density = max(newDensity, density);
+    float newDensity = decay(totalDistance - wallDistance) - wallDecay;
+    
+    if(newDensity > density){
+      density = newDensity;
+      maxApIndex = float(apIndex) / float(apCount);
+    }
+    
   }
 
   gl_FragColor = vec4(opacityToHSV(density), 1.0);
