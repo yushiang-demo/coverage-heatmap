@@ -127,9 +127,10 @@ void main() {
 `;
 
 export const createHeatmapMaterial = () => {
-  const MAX_AP_COUNT = 100;
-  const MAX_WALL_COUNT = 100;
-  const MAX_TRIANGLE_COUNT = 100;
+  const MAX_UNIFORM_COUNT = 250; // https://webglreport.com/ shows max uniform vectors is 256;
+  const MAX_AP_COUNT = MAX_UNIFORM_COUNT;
+  const MAX_WALL_COUNT = MAX_UNIFORM_COUNT / 2;
+  const MAX_TRIANGLE_COUNT = MAX_UNIFORM_COUNT / 3;
 
   const material = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
