@@ -1,3 +1,14 @@
+import * as THREE from "three";
+
+const vertexShader = `
+    varying vec4 world_position;
+
+    void main() {
+        world_position = modelMatrix * vec4(position, 1.0);
+        gl_Position =  projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+`;
+
 const getFragmentShader = (apCount, wallCount, triangleCount) => `
 uniform vec3 aps[${apCount}];
 uniform int apCount;
@@ -96,11 +107,12 @@ void main() {
       vec3 p1 = triangles[3*triangleIndex+1];
       vec3 p2 = triangles[3*triangleIndex+2];
       if(IntersectTriangle(apPosition, rayDir, p0, p1, p2)){
+        // wallDistance += 100.0;
         wallDistance += 0.15;
       }
     }
 
-    float wallDecay = wallDistance * 0.15;
+    float wallDecay = wallDistance * 0.2;
     float newDensity = decay(totalDistance - wallDistance) - wallDecay;
     
     if(newDensity > density){
@@ -114,4 +126,84 @@ void main() {
 }
 `;
 
-export default getFragmentShader;
+export const createHeatmapMaterial = () => {
+  const MAX_AP_COUNT = 100;
+  const MAX_WALL_COUNT = 100;
+  const MAX_TRIANGLE_COUNT = 100;
+
+  const material = new THREE.ShaderMaterial({
+    side: THREE.DoubleSide,
+    uniforms: {
+      triangleCount: {
+        value: 0,
+      },
+      wallCount: {
+        value: 0,
+      },
+      apCount: {
+        value: 0,
+      },
+      aps: {
+        value: Array(MAX_AP_COUNT).fill(new THREE.Vector3()),
+      },
+      walls: {
+        value: Array(MAX_WALL_COUNT * 2).fill(new THREE.Vector3()),
+      },
+      triangles: {
+        value: Array(MAX_TRIANGLE_COUNT * 3).fill(new THREE.Vector3()),
+      },
+    },
+    vertexShader,
+    fragmentShader: getFragmentShader(
+      MAX_AP_COUNT,
+      MAX_WALL_COUNT,
+      MAX_TRIANGLE_COUNT
+    ),
+  });
+
+  const setUniforms = ({
+    triangleCount,
+    wallCount,
+    apCount,
+    aps,
+    walls,
+    triangles,
+  }) => {
+    if (triangleCount) {
+      material.uniforms.triangleCount.value = triangleCount;
+    }
+
+    if (wallCount) {
+      material.uniforms.wallCount.value = wallCount;
+    }
+
+    if (apCount) {
+      material.uniforms.apCount.value = apCount;
+    }
+
+    if (aps) {
+      material.uniforms.aps.value = [
+        ...aps,
+        ...Array(MAX_AP_COUNT - aps.length).fill(new THREE.Vector3()),
+      ];
+    }
+
+    if (walls) {
+      material.uniforms.walls.value = [
+        ...walls,
+        ...Array(MAX_WALL_COUNT * 2 - walls.length).fill(new THREE.Vector3()),
+      ];
+    }
+
+    if (triangles) {
+      material.uniforms.triangles.value = [
+        ...triangles,
+        ...Array(MAX_TRIANGLE_COUNT * 3 - triangles.length).fill(
+          new THREE.Vector3()
+        ),
+      ];
+    }
+  };
+
+  return { material, setUniforms };
+};
