@@ -2,8 +2,10 @@ import * as THREE from "three";
 
 const vertexShader = `
     varying vec4 world_position;
+    varying vec2 vUv;
 
     void main() {
+        vUv = uv;
         world_position = modelMatrix * vec4(position, 1.0);
         gl_Position =  projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
@@ -16,8 +18,10 @@ uniform vec3 aabbs[${aabbCount * 2}];
 uniform int aabbCount;
 uniform vec3 planes[${planeCount * 2}];
 uniform int planeCount;
+uniform sampler2D map;
 
 varying vec4 world_position;
+varying vec2 vUv;
 
 vec3 hsv2rgb(vec3 c) {
   vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
@@ -122,7 +126,9 @@ void main() {
     }
   }
 
-  gl_FragColor = vec4(opacityToHSV(density), 1.0);
+  vec4 visualizedDensity = vec4(opacityToHSV(density), 1.0);
+  vec4 color = texture2D(map, vUv);
+  gl_FragColor = mix(color, visualizedDensity, 0.4);
 }
 
 `;
@@ -136,6 +142,9 @@ export const createHeatmapMaterial = () => {
   const material = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
     uniforms: {
+      map: {
+        value: null,
+      },
       planeCount: {
         value: 0,
       },
@@ -170,6 +179,7 @@ export const createHeatmapMaterial = () => {
     signals,
     aabbs,
     planes,
+    map,
   }) => {
     if (planeCount) {
       material.uniforms.planeCount.value = planeCount;
@@ -202,6 +212,10 @@ export const createHeatmapMaterial = () => {
         ...planes,
         ...Array(MAX_PLANE_COUNT * 2 - planes.length).fill(new THREE.Vector3()),
       ];
+    }
+
+    if (map) {
+      material.uniforms.map.value = map;
     }
   };
 

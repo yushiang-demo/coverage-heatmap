@@ -64,6 +64,11 @@ function ThreeApp() {
       const depth = max[2] - min[2];
 
       const boxGeometry = new THREE.BoxGeometry(width, height, depth);
+      boxGeometry.setAttribute(
+        "uv",
+        new THREE.BufferAttribute(new Float32Array([]), 2)
+      );
+
       const boxMesh = new THREE.Mesh(boxGeometry, obstacleMaterial);
       boxMesh.position.set(
         (max[0] + min[0]) / 2,
@@ -103,8 +108,13 @@ function ThreeApp() {
       scene.add(mesh);
     });
 
+    const texture = new THREE.TextureLoader().load(
+      "/coverage-heatmap/public/floorplan.png"
+    );
+
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
     setHeatmapUniforms({
+      map: texture,
       planeCount: plans.length * 2,
       aabbCount: walls.length,
       signalCount: signals.length,
