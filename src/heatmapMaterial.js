@@ -77,11 +77,6 @@ bool pointOnRay(vec3 point, vec3 rayOrigin, vec3 rayDir){
   return dot(intersectionDir, rayDir) < (1.0-1e-3);
 }
 
-bool IntersectTriangle(vec3 rayOrigin, vec3 rayDir, vec3 p0, vec3 p1, vec3 p2) {
-    vec3 x = IntersectPlane(rayOrigin, rayDir, p0, p1, p2);
-    return !PointInTriangle(x, p0, p1, p2) && pointOnRay(x, rayOrigin, rayDir);
-}
-
 void main() {
 
   float maxApIndex = 0.0;
@@ -108,9 +103,13 @@ void main() {
       vec3 p0 = triangles[3*triangleIndex];
       vec3 p1 = triangles[3*triangleIndex+1];
       vec3 p2 = triangles[3*triangleIndex+2];
-      if(IntersectTriangle(apPosition, rayDir, p0, p1, p2)){
-        wallDistance += 0.15;
+
+      vec3 x = IntersectPlane(apPosition, rayDir, p0, p1, p2);
+      bool noIntersections = PointInTriangle(x, p0, p1, p2) || !pointOnRay(x, apPosition, rayDir) || distance(x,apPosition)> totalDistance - 1e-3;
+      if(noIntersections){
+        continue;
       }
+       wallDistance += 0.15;
     }
 
     float wallDecay = wallDistance * 0.2;
