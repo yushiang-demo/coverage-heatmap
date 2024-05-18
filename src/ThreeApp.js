@@ -38,7 +38,7 @@ function ThreeApp() {
       wireframe: true,
     });
 
-    const aps = [
+    const signals = [
       [0, 1e-3, 0],
       [5, 1e-3, 5],
     ].map((position) => {
@@ -73,37 +73,50 @@ function ThreeApp() {
       scene.add(boxMesh);
     });
 
-    const vertexVectors = [
-      new THREE.Vector3(2, 0.0, 7),
-      new THREE.Vector3(7, 0.0, 2),
-      new THREE.Vector3(7, 3.0, 2),
-      new THREE.Vector3(2, 3.0, 7),
-      new THREE.Vector3(2, 0.0, 7),
-      new THREE.Vector3(7, 3.0, 2),
+    const plans = [
+      [
+        [1.5, 0.0, 6.5],
+        [6.5, 3.0, 1.5],
+      ],
+      [
+        [3.0, 0.0, 8.0],
+        [8.0, 3.0, 3.0],
+      ],
     ];
-    const trianglesGeometry = new THREE.BufferGeometry();
-    const vertices = new Float32Array(
-      vertexVectors.flatMap((vec) => vec.toArray())
-    );
-    trianglesGeometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(vertices, 3)
-    );
-    trianglesGeometry.computeVertexNormals();
-    const mesh = new THREE.Mesh(trianglesGeometry, obstacleMaterial);
-    scene.add(mesh);
+    plans.forEach(([min, max]) => {
+      const vertexVectors = [
+        new THREE.Vector3(min[0], min[1], min[2]),
+        new THREE.Vector3(max[0], min[1], max[2]),
+        new THREE.Vector3(max[0], max[1], max[2]),
+        new THREE.Vector3(min[0], max[1], min[2]),
+        new THREE.Vector3(min[0], min[1], min[2]),
+        new THREE.Vector3(max[0], max[1], max[2]),
+      ];
+
+      const geometry = new THREE.BufferGeometry();
+      const vertices = new Float32Array(
+        vertexVectors.flatMap((vec) => vec.toArray())
+      );
+      geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+      geometry.computeVertexNormals();
+      const mesh = new THREE.Mesh(geometry, obstacleMaterial);
+      scene.add(mesh);
+    });
 
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
     setHeatmapUniforms({
-      triangleCount: vertexVectors.length / 3,
-      wallCount: walls.length,
-      apCount: aps.length,
-      aps: aps.map((ap) => ap.position),
-      walls: wallData.flatMap(([min, max]) => [
+      planeCount: plans.length * 2,
+      aabbCount: walls.length,
+      signalCount: signals.length,
+      signals: signals.map((ap) => ap.position),
+      aabbs: wallData.flatMap(([min, max]) => [
         new THREE.Vector3().fromArray(min),
         new THREE.Vector3().fromArray(max),
       ]),
-      triangles: vertexVectors,
+      planes: plans.flatMap(([min, max]) => [
+        new THREE.Vector3().fromArray(min),
+        new THREE.Vector3().fromArray(max),
+      ]),
     });
 
     const heatmap = new THREE.Mesh(floorGeometry, heatmapMaterial);
