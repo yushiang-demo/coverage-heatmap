@@ -14,7 +14,7 @@ uniform vec3 aps[${apCount}];
 uniform int apCount;
 uniform vec3 walls[${wallCount * 2}];
 uniform int wallCount;
-uniform vec3 triangles[${triangleCount * 3}];
+uniform vec3 triangles[${triangleCount * 2}];
 uniform int triangleCount;
 
 varying vec4 world_position;
@@ -54,34 +54,39 @@ vec2 intersectAABB(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax) {
   return vec2(tNear, tFar);
 }
 
-float PointInOrOn( vec3 P1, vec3 P2, vec3 A, vec3 B ) {
-    vec3 CP1 = cross(B - A, P1 - A);
-    vec3 CP2 = cross(B - A, P2 - A);
-    return step(0.0, dot(CP1, CP2));
+float PointInOrOn(vec3 P1, vec3 P2, vec3 A, vec3 B) {
+  vec3 CP1 = cross(B - A, P1 - A);
+  vec3 CP2 = cross(B - A, P2 - A);
+  return step(0.0, dot(CP1, CP2));
 }
 
-bool PointInTriangle( vec3 px, vec3 p0, vec3 p1, vec3 p2 ) {
-    return PointInOrOn(px, p0, p1, p2) * PointInOrOn(px, p1, p2, p0) * PointInOrOn(px, p2, p0, p1) < 1e-3;
+bool PointInTriangle(vec3 px, vec3 p0, vec3 p1, vec3 p2) {
+  return PointInOrOn(px, p0, p1, p2) * PointInOrOn(px, p1, p2, p0) * PointInOrOn(px, p2, p0, p1) < 1e-3;
 }
 
 vec3 IntersectPlane(vec3 rayOrigin, vec3 rayDir, vec3 p0, vec3 p1, vec3 p2) {
-    vec3 D = rayDir;
-    vec3 N = cross(p1-p0, p2-p0);
-    vec3 X = rayOrigin + D * dot(p0 - rayOrigin, N) / dot(D, N);
+  vec3 D = rayDir;
+  vec3 N = cross(p1 - p0, p2 - p0);
+  vec3 X = rayOrigin + D * dot(p0 - rayOrigin, N) / dot(D, N);
 
-    return X;
+  return X;
 }
 
-bool pointOnRay(vec3 point, vec3 rayOrigin, vec3 rayDir){
+bool pointOnRay(vec3 point, vec3 rayOrigin, vec3 rayDir) {
   vec3 intersectionDir = normalize(rayOrigin - point);
-  return dot(intersectionDir, rayDir) < (1.0-1e-3);
+  return dot(intersectionDir, rayDir) < (1.0 - 1e-3);
+}
+
+bool intersect(vec3 origin, vec3 rayDir, vec3 p0, vec3 p1, vec3 p2, float maxDistance) {
+  vec3 x = IntersectPlane(origin, rayDir, p0, p1, p2);
+  bool noIntersections = PointInTriangle(x, p0, p1, p2) || !pointOnRay(x, origin, rayDir) || distance(x, origin) > maxDistance - 1e-3;
+  return !noIntersections;
 }
 
 void main() {
-
   float maxApIndex = 0.0;
   float density = 0.0;
-  for(int apIndex=0; apIndex < apCount; apIndex++) {
+  for (int apIndex = 0; apIndex < apCount; apIndex++) {
     float wallDistance = 0.0;
     vec3 apPosition = aps[apIndex].xyz;
     vec3 rayDir = normalize(world_position.xyz - apPosition);
@@ -90,7 +95,7 @@ void main() {
 
     for (int wallIndex = 0; wallIndex < wallCount; wallIndex++) {
       vec2 nearFar = intersectAABB(apPosition, rayDir, walls[2 * wallIndex], walls[2 * wallIndex + 1]);
-      bool noIntersections = nearFar.x > nearFar.y || nearFar.x < 0.0 ||nearFar.x > totalDistance - 1e-3;
+      bool noIntersections = nearFar.x > nearFar.y || nearFar.x < 0.0 || nearFar.x > totalDistance - 1e-3;
       if (noIntersections) {
         continue;
       }
@@ -98,28 +103,29 @@ void main() {
       wallDistance += nearFar.y - nearFar.x;
     }
 
+    for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++) {
+      vec3 min = triangles[2 * triangleIndex];
+      vec3 max = triangles[2 * triangleIndex + 1];
 
-    for(int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++) {
-      vec3 p0 = triangles[3*triangleIndex];
-      vec3 p1 = triangles[3*triangleIndex+1];
-      vec3 p2 = triangles[3*triangleIndex+2];
+      vec3 p0 = min;
+      vec3 p1 = vec3(max.x, min.y, max.z);
+      vec3 p2 = max;
+      vec3 p3 = vec3(min.x, max.y, min.z);
 
-      vec3 x = IntersectPlane(apPosition, rayDir, p0, p1, p2);
-      bool noIntersections = PointInTriangle(x, p0, p1, p2) || !pointOnRay(x, apPosition, rayDir) || distance(x,apPosition)> totalDistance - 1e-3;
-      if(noIntersections){
+      if (!intersect(apPosition, rayDir, p0, p1, p2, totalDistance) && !intersect(apPosition, rayDir, p3, p0, p2, totalDistance)) {
         continue;
       }
-       wallDistance += 0.15;
+
+      wallDistance += 0.15;
     }
 
     float wallDecay = wallDistance * 0.2;
     float newDensity = decay(totalDistance - wallDistance) - wallDecay;
-    
-    if(newDensity > density){
+
+    if (newDensity > density) {
       density = newDensity;
       maxApIndex = float(apIndex) / float(apCount);
     }
-    
   }
 
   gl_FragColor = vec4(opacityToHSV(density), 1.0);
@@ -151,7 +157,7 @@ export const createHeatmapMaterial = () => {
         value: Array(MAX_WALL_COUNT * 2).fill(new THREE.Vector3()),
       },
       triangles: {
-        value: Array(MAX_TRIANGLE_COUNT * 3).fill(new THREE.Vector3()),
+        value: Array(MAX_TRIANGLE_COUNT * 2).fill(new THREE.Vector3()),
       },
     },
     vertexShader,
@@ -199,7 +205,7 @@ export const createHeatmapMaterial = () => {
     if (triangles) {
       material.uniforms.triangles.value = [
         ...triangles,
-        ...Array(MAX_TRIANGLE_COUNT * 3 - triangles.length).fill(
+        ...Array(MAX_TRIANGLE_COUNT * 2 - triangles.length).fill(
           new THREE.Vector3()
         ),
       ];
