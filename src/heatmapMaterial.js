@@ -95,19 +95,20 @@ void main() {
 
     for (int wallIndex = 0; wallIndex < wallCount; wallIndex++) {
       vec2 nearFar = intersectAABB(apPosition, rayDir, walls[2 * wallIndex], walls[2 * wallIndex + 1]);
-      bool noIntersections = nearFar.x > nearFar.y || nearFar.x < 0.0;
+      bool noIntersections = nearFar.x > nearFar.y || nearFar.x < 0.0 ||nearFar.x > totalDistance - 1e-3;
       if (noIntersections) {
         continue;
       }
+
       wallDistance += nearFar.y - nearFar.x;
     }
+
 
     for(int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++) {
       vec3 p0 = triangles[3*triangleIndex];
       vec3 p1 = triangles[3*triangleIndex+1];
       vec3 p2 = triangles[3*triangleIndex+2];
       if(IntersectTriangle(apPosition, rayDir, p0, p1, p2)){
-        // wallDistance += 100.0;
         wallDistance += 0.15;
       }
     }

@@ -2,42 +2,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createHeatmapMaterial } from "./heatmapMaterial";
 
-function expandAABB(aabb, scale) {
-  // Extracting min and max coordinates
-  const [min, max] = aabb;
-
-  // Center of AABB
-  const center = [
-    (min[0] + max[0]) / 2,
-    (min[1] + max[1]) / 2,
-    (min[2] + max[2]) / 2,
-  ];
-
-  // Calculate half extents
-  const halfExtents = [
-    (max[0] - min[0]) / 2,
-    (max[1] - min[1]) / 2,
-    (max[2] - min[2]) / 2,
-  ];
-
-  // Scale the half extents
-  const scaledHalfExtents = halfExtents.map((extent) => extent * scale);
-
-  // Calculate new min and max coordinates
-  const newMin = [
-    center[0] - scaledHalfExtents[0],
-    center[1] - scaledHalfExtents[1],
-    center[2] - scaledHalfExtents[2],
-  ];
-  const newMax = [
-    center[0] + scaledHalfExtents[0],
-    center[1] + scaledHalfExtents[1],
-    center[2] + scaledHalfExtents[2],
-  ];
-
-  return [newMin, newMax];
-}
-
 function ThreeApp() {
   const { material: heatmapMaterial, setUniforms: setHeatmapUniforms } =
     createHeatmapMaterial();
@@ -94,8 +58,7 @@ function ThreeApp() {
         [0.5, 3, 1.5],
       ],
     ];
-    const walls = wallData.map((aabb) => {
-      const [min, max] = expandAABB(aabb, 1 + 1e-2);
+    const walls = wallData.map(([min, max]) => {
       const width = max[0] - min[0];
       const height = max[1] - min[1];
       const depth = max[2] - min[2];
