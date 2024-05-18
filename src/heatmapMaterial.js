@@ -9,13 +9,13 @@ const vertexShader = `
     }
 `;
 
-const getFragmentShader = (apCount, wallCount, triangleCount) => `
-uniform vec3 aps[${apCount}];
-uniform int apCount;
-uniform vec3 walls[${wallCount * 2}];
-uniform int wallCount;
-uniform vec3 triangles[${triangleCount * 2}];
-uniform int triangleCount;
+const getFragmentShader = (signalCount, aabbCount, planeCount) => `
+uniform vec3 signals[${signalCount}];
+uniform int signalCount;
+uniform vec3 aabbs[${aabbCount * 2}];
+uniform int aabbCount;
+uniform vec3 planes[${planeCount * 2}];
+uniform int planeCount;
 
 varying vec4 world_position;
 
@@ -26,14 +26,9 @@ vec3 hsv2rgb(vec3 c) {
 }
 
 vec3 opacityToHSV(float opacity) {
-  // Define the range of hues (0.0 to 1.0)
   float minHue = 1.0;
   float maxHue = 0.0;
-
-  // Map opacity to hue
   float hue = mix(minHue, maxHue, opacity);
-
-  // Convert hue to RGB in HSV color space
   return hsv2rgb(vec3(hue, 1.0, 1.0));
 }
 
@@ -68,7 +63,6 @@ vec3 IntersectPlane(vec3 rayOrigin, vec3 rayDir, vec3 p0, vec3 p1, vec3 p2) {
   vec3 D = rayDir;
   vec3 N = cross(p1 - p0, p2 - p0);
   vec3 X = rayOrigin + D * dot(p0 - rayOrigin, N) / dot(D, N);
-
   return X;
 }
 
@@ -84,17 +78,17 @@ bool intersect(vec3 origin, vec3 rayDir, vec3 p0, vec3 p1, vec3 p2, float maxDis
 }
 
 void main() {
-  float maxApIndex = 0.0;
+  float maxSignalIndex = 0.0;
   float density = 0.0;
-  for (int apIndex = 0; apIndex < apCount; apIndex++) {
+  for (int signalIndex = 0; signalIndex < signalCount; signalIndex++) {
     float wallDistance = 0.0;
-    vec3 apPosition = aps[apIndex].xyz;
-    vec3 rayDir = normalize(world_position.xyz - apPosition);
+    vec3 signalPosition = signals[signalIndex].xyz;
+    vec3 rayDir = normalize(world_position.xyz - signalPosition);
 
-    float totalDistance = distance(world_position.xyz, apPosition);
+    float totalDistance = distance(world_position.xyz, signalPosition);
 
-    for (int wallIndex = 0; wallIndex < wallCount; wallIndex++) {
-      vec2 nearFar = intersectAABB(apPosition, rayDir, walls[2 * wallIndex], walls[2 * wallIndex + 1]);
+    for (int aabbIndex = 0; aabbIndex < aabbCount; aabbIndex++) {
+      vec2 nearFar = intersectAABB(signalPosition, rayDir, aabbs[2 * aabbIndex], aabbs[2 * aabbIndex + 1]);
       bool noIntersections = nearFar.x > nearFar.y || nearFar.x < 0.0 || nearFar.x > totalDistance - 1e-3;
       if (noIntersections) {
         continue;
@@ -103,16 +97,16 @@ void main() {
       wallDistance += nearFar.y - nearFar.x;
     }
 
-    for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++) {
-      vec3 min = triangles[2 * triangleIndex];
-      vec3 max = triangles[2 * triangleIndex + 1];
+    for (int planeIndex = 0; planeIndex < planeCount; planeIndex++) {
+      vec3 min = planes[2 * planeIndex];
+      vec3 max = planes[2 * planeIndex + 1];
 
       vec3 p0 = min;
       vec3 p1 = vec3(max.x, min.y, max.z);
       vec3 p2 = max;
       vec3 p3 = vec3(min.x, max.y, min.z);
 
-      if (!intersect(apPosition, rayDir, p0, p1, p2, totalDistance) && !intersect(apPosition, rayDir, p3, p0, p2, totalDistance)) {
+      if (!intersect(signalPosition, rayDir, p0, p1, p2, totalDistance) && !intersect(signalPosition, rayDir, p3, p0, p2, totalDistance)) {
         continue;
       }
 
@@ -124,90 +118,89 @@ void main() {
 
     if (newDensity > density) {
       density = newDensity;
-      maxApIndex = float(apIndex) / float(apCount);
+      maxSignalIndex = float(signalIndex) / float(signalCount);
     }
   }
 
   gl_FragColor = vec4(opacityToHSV(density), 1.0);
 }
+
 `;
 
 export const createHeatmapMaterial = () => {
-  // https://webglreport.com/ shows max uniform vectors is 256;
-  const MAX_AP_COUNT = 30;
-  const MAX_WALL_COUNT = 50;
-  const MAX_TRIANGLE_COUNT = 20;
+  // https://webglreport.com/ shows max uniform vectors on mobile is 256;
+  const MAX_SIGNAL_COUNT = 30;
+  const MAX_AABB_COUNT = 50;
+  const MAX_PLANE_COUNT = 20;
 
   const material = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
     uniforms: {
-      triangleCount: {
+      planeCount: {
         value: 0,
       },
-      wallCount: {
+      aabbCount: {
         value: 0,
       },
-      apCount: {
+      signalCount: {
         value: 0,
       },
-      aps: {
-        value: Array(MAX_AP_COUNT).fill(new THREE.Vector3()),
+      signals: {
+        value: Array(MAX_SIGNAL_COUNT).fill(new THREE.Vector3()),
       },
-      walls: {
-        value: Array(MAX_WALL_COUNT * 2).fill(new THREE.Vector3()),
+      aabbs: {
+        value: Array(MAX_AABB_COUNT * 2).fill(new THREE.Vector3()),
       },
-      triangles: {
-        value: Array(MAX_TRIANGLE_COUNT * 2).fill(new THREE.Vector3()),
+      planes: {
+        value: Array(MAX_PLANE_COUNT * 2).fill(new THREE.Vector3()),
       },
     },
     vertexShader,
     fragmentShader: getFragmentShader(
-      MAX_AP_COUNT,
-      MAX_WALL_COUNT,
-      MAX_TRIANGLE_COUNT
+      MAX_SIGNAL_COUNT,
+      MAX_AABB_COUNT,
+      MAX_PLANE_COUNT
     ),
   });
 
   const setUniforms = ({
-    triangleCount,
-    wallCount,
-    apCount,
-    aps,
-    walls,
-    triangles,
+    planeCount,
+    aabbCount,
+    signalCount,
+    signals,
+    aabbs,
+    planes,
   }) => {
-    if (triangleCount) {
-      material.uniforms.triangleCount.value = triangleCount;
+    if (planeCount) {
+      material.uniforms.planeCount.value = planeCount;
     }
 
-    if (wallCount) {
-      material.uniforms.wallCount.value = wallCount;
+    if (aabbCount) {
+      material.uniforms.aabbCount.value = aabbCount;
     }
 
-    if (apCount) {
-      material.uniforms.apCount.value = apCount;
+    if (signalCount) {
+      material.uniforms.signalCount.value = signalCount;
     }
 
-    if (aps) {
-      material.uniforms.aps.value = [
-        ...aps,
-        ...Array(MAX_AP_COUNT - aps.length).fill(new THREE.Vector3()),
+    if (signals) {
+      material.uniforms.signals.value = [
+        ...signals,
+        ...Array(MAX_SIGNAL_COUNT - signals.length).fill(new THREE.Vector3()),
       ];
     }
 
-    if (walls) {
-      material.uniforms.walls.value = [
-        ...walls,
-        ...Array(MAX_WALL_COUNT * 2 - walls.length).fill(new THREE.Vector3()),
+    if (aabbs) {
+      material.uniforms.aabbs.value = [
+        ...aabbs,
+        ...Array(MAX_AABB_COUNT * 2 - aabbs.length).fill(new THREE.Vector3()),
       ];
     }
 
-    if (triangles) {
-      material.uniforms.triangles.value = [
-        ...triangles,
-        ...Array(MAX_TRIANGLE_COUNT * 2 - triangles.length).fill(
-          new THREE.Vector3()
-        ),
+    if (planes) {
+      material.uniforms.planes.value = [
+        ...planes,
+        ...Array(MAX_PLANE_COUNT * 2 - planes.length).fill(new THREE.Vector3()),
       ];
     }
   };

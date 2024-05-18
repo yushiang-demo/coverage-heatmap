@@ -38,7 +38,7 @@ function ThreeApp() {
       wireframe: true,
     });
 
-    const aps = [
+    const signals = [
       [0, 1e-3, 0],
       [5, 1e-3, 5],
     ].map((position) => {
@@ -105,15 +105,15 @@ function ThreeApp() {
 
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
     setHeatmapUniforms({
-      triangleCount: plans.length * 2,
-      wallCount: walls.length,
-      apCount: aps.length,
-      aps: aps.map((ap) => ap.position),
-      walls: wallData.flatMap(([min, max]) => [
+      planeCount: plans.length * 2,
+      aabbCount: walls.length,
+      signalCount: signals.length,
+      signals: signals.map((ap) => ap.position),
+      aabbs: wallData.flatMap(([min, max]) => [
         new THREE.Vector3().fromArray(min),
         new THREE.Vector3().fromArray(max),
       ]),
-      triangles: plans.flatMap(([min, max]) => [
+      planes: plans.flatMap(([min, max]) => [
         new THREE.Vector3().fromArray(min),
         new THREE.Vector3().fromArray(max),
       ]),
