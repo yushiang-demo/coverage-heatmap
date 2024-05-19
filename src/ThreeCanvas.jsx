@@ -6,7 +6,7 @@ const FullScreenCanvas = () => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const { resizeCanvas } = ThreeApp.init(canvas);
+    const { resizeCanvas, dispose } = ThreeApp.init(canvas);
 
     ThreeApp.setSignal([
       [0, 1e-3, 0],
@@ -43,7 +43,10 @@ const FullScreenCanvas = () => {
     onResize();
     window.addEventListener("resize", onResize);
 
-    return () => window.removeEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      dispose();
+    };
   }, []);
 
   return (

@@ -145,12 +145,16 @@ function ThreeApp() {
 
     camera.position.z = 5;
 
+    let frameIndex = 0;
     const animate = () => {
-      requestAnimationFrame(animate);
+      frameIndex = requestAnimationFrame(animate);
 
       controls.update();
 
       renderer.render(scene, camera);
+    };
+    const dispose = () => {
+      cancelAnimationFrame(frameIndex);
     };
 
     const resizeCanvas = (viewportWidth, viewportHeight) => {
@@ -165,6 +169,7 @@ function ThreeApp() {
 
     return {
       resizeCanvas,
+      dispose,
     };
   };
 
