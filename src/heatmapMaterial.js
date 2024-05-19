@@ -16,6 +16,7 @@ uniform vec3 aabbs[${aabbCount * 2}];
 uniform int aabbCount;
 uniform vec3 planes[${planeCount * 2}];
 uniform int planeCount;
+uniform sampler2D map;
 
 varying vec4 world_position;
 
@@ -26,14 +27,14 @@ vec3 hsv2rgb(vec3 c) {
 }
 
 vec3 opacityToHSV(float opacity) {
-  float minHue = 1.0;
+  float minHue = 0.7;
   float maxHue = 0.0;
   float hue = mix(minHue, maxHue, opacity);
   return hsv2rgb(vec3(hue, 1.0, 1.0));
 }
 
 float decay(float distance) {
-  return 1.0 / pow(distance / 20.0 + 1.0, 2.0);
+  return 1.0 / pow(distance / 10.0 + 1.0, 2.0);
 }
 
 // adapted from intersectCube in https://github.com/evanw/webgl-path-tracing/blob/master/webgl-path-tracing.js
@@ -122,7 +123,9 @@ void main() {
     }
   }
 
-  gl_FragColor = vec4(opacityToHSV(density), 1.0);
+  vec4 visualizedDensity = vec4(opacityToHSV(density), 1.0);
+  vec4 color = texture2D(map, (world_position.xz/20.0)+0.5);
+  gl_FragColor = mix(color, visualizedDensity, 0.4);
 }
 
 `;
@@ -136,6 +139,9 @@ export const createHeatmapMaterial = () => {
   const material = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
     uniforms: {
+      map: {
+        value: null,
+      },
       planeCount: {
         value: 0,
       },
@@ -170,6 +176,7 @@ export const createHeatmapMaterial = () => {
     signals,
     aabbs,
     planes,
+    map,
   }) => {
     if (planeCount) {
       material.uniforms.planeCount.value = planeCount;
@@ -202,6 +209,10 @@ export const createHeatmapMaterial = () => {
         ...planes,
         ...Array(MAX_PLANE_COUNT * 2 - planes.length).fill(new THREE.Vector3()),
       ];
+    }
+
+    if (map) {
+      material.uniforms.map.value = map;
     }
   };
 
