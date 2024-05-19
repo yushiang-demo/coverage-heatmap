@@ -122,7 +122,7 @@ function ThreeApp() {
     controls.update();
 
     const texture = new THREE.TextureLoader().load(
-      "/coverage-heatmap/public/floorplan.png"
+      "/coverage-heatmap/floorplan.png"
     );
 
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
