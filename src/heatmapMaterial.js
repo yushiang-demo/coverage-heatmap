@@ -81,8 +81,8 @@ bool intersect(vec3 origin, vec3 rayDir, vec3 p0, vec3 p1, vec3 p2, float maxDis
 }
 
 void main() {
-  float maxSignalIndex = 0.0;
-  float density = 0.0;
+  float maxSignalIndex = 1.0;
+  float density = 1e-3;
   for (int signalIndex = 0; signalIndex < signalCount; signalIndex++) {
     float wallDistance = 0.0;
     vec3 signalPosition = signals[signalIndex].xyz;
