@@ -83,29 +83,28 @@ const furnitureAABBs = [
     [1.02, 1.0, -9.55],
   ],
 ];
-const FullScreenCanvas = () => {
-  const [isSignalIndex, setIsSignalIndex] = useState(false);
-  const [hasFurniture, setHasFurniture] = useState(true);
-  const [hasWall, setHasWall] = useState(true);
 
-  const [signalIntensity, setSignalIntensity] = useState([10, 10]);
-  const [signal] = useState([
-    [0, 1.1, -4],
-    [0, 2.0, 8.1],
-  ]);
-  const [aabb] = useState([...wallsAABBs, ...furnitureAABBs]);
-  const [plane] = useState([
+const getPlanes = (percentage) => {
+  const MAX_ANGLE = 0;
+  const MIN_ANGLE = -Math.PI / 2 + 1e-1;
+
+  const MAX_LENGTH = -1.7;
+  const MIN_LENGTH = 0;
+
+  return [
     [
       [-7.1, 3, 0.73],
       [
-        -7.1 + 2.5 * Math.cos(-Math.PI / 3),
+        -7.1 +
+          2.5 * Math.cos(MAX_ANGLE * percentage + MIN_ANGLE * (1 - percentage)),
         0,
-        0.73 + 2.5 * Math.sin(-Math.PI / 3),
+        0.73 +
+          2.5 * Math.sin(MAX_ANGLE * percentage + MIN_ANGLE * (1 - percentage)),
       ],
     ],
     [
       [4.05, 0, -0.6],
-      [4.05, 3, -2.3],
+      [4.05, 3, -0.6 + MAX_LENGTH * percentage + MIN_LENGTH * (1 - percentage)],
     ],
     [
       [-6.8, 0, 8.5],
@@ -115,7 +114,21 @@ const FullScreenCanvas = () => {
       [2.5, 0, 8.5],
       [5.55, 3, 8.5],
     ],
+  ];
+};
+const FullScreenCanvas = () => {
+  const [isSignalIndex, setIsSignalIndex] = useState(false);
+  const [hasFurniture, setHasFurniture] = useState(true);
+  const [hasWall, setHasWall] = useState(true);
+  const [doorPercentage, setDoorPercentage] = useState(0.5);
+
+  const [signalIntensity, setSignalIntensity] = useState([10, 10]);
+  const [signal] = useState([
+    [0, 1.1, -4],
+    [0, 2.0, 8.1],
   ]);
+  const [aabb] = useState([]);
+  const [plane] = useState([]);
   const divRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -143,8 +156,8 @@ const FullScreenCanvas = () => {
   }, [aabb, hasFurniture, hasWall]);
 
   useEffect(() => {
-    ThreeApp.setPlane(plane);
-  }, [plane]);
+    ThreeApp.setPlane(getPlanes(doorPercentage));
+  }, [doorPercentage, plane]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -218,6 +231,17 @@ const FullScreenCanvas = () => {
           checked={isSignalIndex}
         />
         <label htmlFor="signalIndex">show signal index map</label>
+        <br />
+        <label htmlFor="door">Door</label>
+        <input
+          type="range"
+          id={"door"}
+          min={1e-3}
+          max={1}
+          step={1e-2}
+          onChange={(e) => setDoorPercentage(e.target.value)}
+          value={doorPercentage}
+        />
         <br />
       </div>
       <div
