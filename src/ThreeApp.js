@@ -117,15 +117,6 @@ function ThreeApp() {
       1000
     );
 
-    [
-      [5, 10, 7.5],
-      [-5, -10, -7.5],
-    ].forEach((lightPosition) => {
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-      directionalLight.position.fromArray(lightPosition);
-      scene.add(directionalLight);
-    });
-
     const controls = new OrbitControls(camera, renderer.domElement);
     camera.position.set(0, 20, 100);
     controls.update();

@@ -2,10 +2,8 @@ import * as THREE from "three";
 
 const vertexShader = `
     varying vec4 world_position;
-    varying vec2 vUv;
 
     void main() {
-        vUv = uv;
         world_position = modelMatrix * vec4(position, 1.0);
         gl_Position =  projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
@@ -21,7 +19,6 @@ uniform int planeCount;
 uniform sampler2D map;
 
 varying vec4 world_position;
-varying vec2 vUv;
 
 vec3 hsv2rgb(vec3 c) {
   vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
@@ -30,14 +27,14 @@ vec3 hsv2rgb(vec3 c) {
 }
 
 vec3 opacityToHSV(float opacity) {
-  float minHue = 1.0;
+  float minHue = 0.7;
   float maxHue = 0.0;
   float hue = mix(minHue, maxHue, opacity);
   return hsv2rgb(vec3(hue, 1.0, 1.0));
 }
 
 float decay(float distance) {
-  return 1.0 / pow(distance / 20.0 + 1.0, 2.0);
+  return 1.0 / pow(distance / 10.0 + 1.0, 2.0);
 }
 
 // adapted from intersectCube in https://github.com/evanw/webgl-path-tracing/blob/master/webgl-path-tracing.js
@@ -127,7 +124,7 @@ void main() {
   }
 
   vec4 visualizedDensity = vec4(opacityToHSV(density), 1.0);
-  vec4 color = texture2D(map, vUv);
+  vec4 color = texture2D(map, (world_position.xz/20.0)+0.5);
   gl_FragColor = mix(color, visualizedDensity, 0.4);
 }
 
