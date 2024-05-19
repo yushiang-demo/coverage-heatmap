@@ -11,12 +11,14 @@ const vertexShader = `
 
 const getFragmentShader = (signalCount, aabbCount, planeCount) => `
 uniform vec3 signals[${signalCount}];
+uniform float signalIntensity[${signalCount}];
 uniform int signalCount;
 uniform vec3 aabbs[${aabbCount * 2}];
 uniform int aabbCount;
 uniform vec3 planes[${planeCount * 2}];
 uniform int planeCount;
 uniform sampler2D map;
+uniform bool isSignalIndex;
 
 varying vec4 world_position;
 
@@ -33,8 +35,8 @@ vec3 opacityToHSV(float opacity) {
   return hsv2rgb(vec3(hue, 1.0, 1.0));
 }
 
-float decay(float distance) {
-  return 1.0 / pow(distance / 10.0 + 1.0, 2.0);
+float decay(float distance, float intensity) {
+  return 1.0 / pow(distance / intensity + 1.0, 2.0);
 }
 
 // adapted from intersectCube in https://github.com/evanw/webgl-path-tracing/blob/master/webgl-path-tracing.js
@@ -115,7 +117,7 @@ void main() {
     }
 
     float wallDecay = wallDistance * 0.2;
-    float newDensity = decay(totalDistance - wallDistance) - wallDecay;
+    float newDensity = decay(totalDistance - wallDistance, signalIntensity[signalIndex]) - wallDecay;
 
     if (newDensity > density) {
       density = newDensity;
@@ -123,7 +125,7 @@ void main() {
     }
   }
 
-  vec4 visualizedDensity = vec4(opacityToHSV(density), 1.0);
+  vec4 visualizedDensity = vec4(opacityToHSV(isSignalIndex? maxSignalIndex:density), 1.0);
   vec4 color = texture2D(map, (world_position.xz/20.0)+0.5);
   gl_FragColor = mix(color, visualizedDensity, 0.4);
 }
@@ -132,13 +134,16 @@ void main() {
 
 export const createHeatmapMaterial = () => {
   // https://webglreport.com/ shows max uniform vectors on mobile is 256;
-  const MAX_SIGNAL_COUNT = 30;
+  const MAX_SIGNAL_COUNT = 15;
   const MAX_AABB_COUNT = 50;
   const MAX_PLANE_COUNT = 20;
 
   const material = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
     uniforms: {
+      isSignalIndex: {
+        value: false,
+      },
       map: {
         value: null,
       },
@@ -150,6 +155,9 @@ export const createHeatmapMaterial = () => {
       },
       signalCount: {
         value: 0,
+      },
+      signalIntensity: {
+        value: Array(MAX_SIGNAL_COUNT).fill(10),
       },
       signals: {
         value: Array(MAX_SIGNAL_COUNT).fill(new THREE.Vector3()),
@@ -170,24 +178,39 @@ export const createHeatmapMaterial = () => {
   });
 
   const setUniforms = ({
+    isSignalIndex,
     planeCount,
     aabbCount,
     signalCount,
     signals,
+    signalIntensity,
     aabbs,
     planes,
     map,
   }) => {
-    if (planeCount) {
+    const isDefined = (value) => value !== undefined;
+
+    if (isDefined(isSignalIndex)) {
+      material.uniforms.isSignalIndex.value = isSignalIndex;
+    }
+
+    if (isDefined(planeCount)) {
       material.uniforms.planeCount.value = planeCount;
     }
 
-    if (aabbCount) {
+    if (isDefined(aabbCount)) {
       material.uniforms.aabbCount.value = aabbCount;
     }
 
-    if (signalCount) {
+    if (isDefined(signalCount)) {
       material.uniforms.signalCount.value = signalCount;
+    }
+
+    if (signalIntensity) {
+      material.uniforms.signalIntensity.value = [
+        ...signalIntensity,
+        ...Array(MAX_SIGNAL_COUNT - signalIntensity.length).fill(0),
+      ];
     }
 
     if (signals) {
