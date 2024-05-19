@@ -8,6 +8,33 @@ const FullScreenCanvas = () => {
     const canvas = canvasRef.current;
     const { resizeCanvas } = ThreeApp.init(canvas);
 
+    ThreeApp.setSignal([
+      [0, 1e-3, 0],
+      [5, 1e-3, 5],
+    ]);
+
+    ThreeApp.setAABB([
+      [
+        [0.5, 0, -4],
+        [1, 3, 1.5],
+      ],
+      [
+        [-5, 0, 1],
+        [0.5, 3, 1.5],
+      ],
+    ]);
+
+    ThreeApp.setPlane([
+      [
+        [1.5, 0.0, 6.5],
+        [6.5, 3.0, 1.5],
+      ],
+      [
+        [3.0, 0.0, 8.0],
+        [8.0, 3.0, 3.0],
+      ],
+    ]);
+
     const onResize = () => {
       const viewportWidth = divRef.current.clientWidth;
       const viewportHeight = divRef.current.clientHeight;
