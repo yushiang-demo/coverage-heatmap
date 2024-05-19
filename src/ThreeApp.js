@@ -105,6 +105,18 @@ function ThreeApp() {
     };
   })();
 
+  const setIsSignalIndex = (data) => {
+    setHeatmapUniforms({
+      isSignalIndex: data,
+    });
+  };
+
+  const setSignalIntensity = (data) => {
+    setHeatmapUniforms({
+      signalIntensity: data,
+    });
+  };
+
   const init = (canvas) => {
     const renderer = new THREE.WebGLRenderer({
       canvas,
@@ -167,8 +179,10 @@ function ThreeApp() {
   return {
     init,
     setSignal,
+    setSignalIntensity,
     setAABB,
     setPlane,
+    setIsSignalIndex,
   };
 }
 
