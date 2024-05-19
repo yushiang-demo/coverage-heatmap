@@ -1,8 +1,25 @@
-# React + Vite
+# 3D Coverage Heatmap
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Our project accurately simulates signal decay through obstacles, providing intensity estimates at each point. With support for real-time computation on mobile devices and easily extendable modules for complex scenarios, it offers a comprehensive toolkit for exploring signal transmission dynamics.
 
-Currently, two official plugins are available:
+![demo](./demo.jpg)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Quick start
+
+## Development Environment Setup
+
+```
+yarn
+yarn dev
+```
+
+## Build
+
+```
+yarn build
+```
+
+# References
+
+- [ray-aabb intersection](https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d)
+- [ray-triangle intersection](https://stackoverflow.com/questions/59257678/intersect-a-ray-with-a-triangle-in-glsl-c)
