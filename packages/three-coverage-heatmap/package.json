@@ -1,0 +1,7 @@
+{
+  "name": "three-coverage-heatmap",
+  "version": "1.0.0",
+  "dependencies": {
+    "three": "^0.164.1"
+  }
+}
