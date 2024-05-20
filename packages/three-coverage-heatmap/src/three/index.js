@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createHeatmapMaterial } from "./heatmapMaterial";
 
-function ThreeApp() {
+function App() {
   const { material: heatmapMaterial, setUniforms: setHeatmapUniforms } =
     createHeatmapMaterial();
   const obstacleMaterial = heatmapMaterial;
@@ -12,6 +12,7 @@ function ThreeApp() {
     const group = new THREE.Group();
     scene.add(group);
     return (data) => {
+      if (!data) return;
       group.clear();
       data.forEach((position) => {
         const geometry = new THREE.SphereGeometry(0.1, 16, 16);
@@ -36,6 +37,7 @@ function ThreeApp() {
     scene.add(group);
 
     return (data) => {
+      if (!data) return;
       group.clear();
       data.forEach(([min, max]) => {
         const width = max[0] - min[0];
@@ -71,6 +73,7 @@ function ThreeApp() {
     const group = new THREE.Group();
     scene.add(group);
     return (data) => {
+      if (!data) return;
       group.clear();
       data.forEach(([min, max]) => {
         const vertexVectors = [
@@ -117,6 +120,13 @@ function ThreeApp() {
     });
   };
 
+  const setTexture = (url) => {
+    const texture = new THREE.TextureLoader().load(url);
+    setHeatmapUniforms({
+      map: texture,
+    });
+  };
+
   const init = (canvas) => {
     const renderer = new THREE.WebGLRenderer({
       canvas,
@@ -133,14 +143,7 @@ function ThreeApp() {
     camera.position.set(0, 20, 100);
     controls.update();
 
-    const texture = new THREE.TextureLoader().load(
-      "/coverage-heatmap/floorplan.png"
-    );
-
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
-    setHeatmapUniforms({
-      map: texture,
-    });
 
     const heatmap = new THREE.Mesh(floorGeometry, heatmapMaterial);
     heatmap.rotateX(-Math.PI / 2);
@@ -183,9 +186,10 @@ function ThreeApp() {
     setAABB,
     setPlane,
     setIsSignalIndex,
+    setTexture,
   };
 }
 
-const instance = new ThreeApp();
+const instance = new App();
 
 export default instance;
