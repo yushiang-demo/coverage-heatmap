@@ -157,6 +157,23 @@ const App = () => {
       <div
         style={{
           position: "fixed",
+          right: "0",
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+          padding: "10px",
+        }}
+      >
+        <a href={"https://github.com/yushiang-demo/coverage-heatmap"}>
+          <img src="/coverage-heatmap/github.png" />
+        </a>
+        <a href={"/coverage-heatmap/doc/"}>
+          <img src="/coverage-heatmap/storybook.png" />
+        </a>
+      </div>
+      <div
+        style={{
+          position: "fixed",
         }}
       >
         {signalIntensity.map((intensity, index) => {
