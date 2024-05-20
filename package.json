@@ -43,7 +43,7 @@
     "storybook": "^8.1.1",
     "vite": "^5.2.0"
   },
-   "resolutions": {
-    "jackspeak": "2.3.6"
+  "resolutions": {
+    "jackspeak": "2.1.1"
   }
 }
