@@ -11,7 +11,7 @@ export default {
 
 export const Demo = {
   args: {
-    texture: "/floorplan.png",
+    texture: "./floorplan.png",
     isSignalIndex: false,
     signalIntensity: [10, 10],
     signals: [
