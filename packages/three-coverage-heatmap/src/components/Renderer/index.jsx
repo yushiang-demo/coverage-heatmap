@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import ThreeApp from "../../three";
+import React, { useEffect, useRef, useState } from "react";
+import ThreeRenderer from "../../three";
 
 const Renderer = ({
   texture,
@@ -9,6 +9,7 @@ const Renderer = ({
   aabbs,
   planes,
 }) => {
+  const [ThreeApp] = useState(new ThreeRenderer());
   const divRef = useRef(null);
   const canvasRef = useRef(null);
 

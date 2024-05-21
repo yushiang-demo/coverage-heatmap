@@ -190,6 +190,4 @@ function App() {
   };
 }
 
-const instance = new App();
-
-export default instance;
+export default App;
