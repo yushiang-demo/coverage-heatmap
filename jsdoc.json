@@ -17,6 +17,11 @@
       "base_url": "https://yushiang-demo.github.io/coverage-heatmap/doc/",
       "menu": [
         {
+          "title": "Demo",
+          "link": "/coverage-heatmap",
+          "target": "_blank"
+        },
+        {
           "title": "Github",
           "link": "https://github.com/yushiang-demo/coverage-heatmap",
           "target": "_blank"
