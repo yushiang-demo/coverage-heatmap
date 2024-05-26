@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import HeatmapMaterial from "./Materials/HeatmapMaterial";
 
+/** @class */
 function App() {
   const heatmapMaterial = new HeatmapMaterial();
   const obstacleMaterial = heatmapMaterial;

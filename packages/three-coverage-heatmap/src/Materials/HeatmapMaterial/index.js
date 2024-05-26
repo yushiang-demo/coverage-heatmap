@@ -132,6 +132,7 @@ void main() {
 
 `;
 
+/** @class */
 class HeatmapMaterial extends THREE.ShaderMaterial {
   static _getUniformLimitation() {
     // https://webglreport.com/ shows max uniform vectors on mobile is 256;
