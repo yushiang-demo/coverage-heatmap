@@ -77,6 +77,7 @@ class RoomBufferGeometry extends THREE.BufferGeometry {
       [-1, 0, 1],
       [-1, 0, -1],
     ].flatMap(([x, y, z]) => [(x * width) / 2, y, (z * length) / 2]);
+    this._updateGeometry();
   }
 
   /**
