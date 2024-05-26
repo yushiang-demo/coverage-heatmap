@@ -1,3 +1,3 @@
-import Renderer from "./src/components/Renderer";
+import App from "./src";
 
-export default Renderer;
+export default App;

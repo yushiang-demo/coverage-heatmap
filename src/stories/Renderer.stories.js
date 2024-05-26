@@ -2,7 +2,7 @@ import Renderer from "./Renderer";
 import { wallsAABBs, furnitureAABBs, getPlanes } from "./data";
 
 export default {
-  title: "three-coverage-heatmap/Renderer",
+  title: "react-coverage-heatmap/Renderer",
   tags: ["autodocs"],
   component: Renderer,
   parameters: {

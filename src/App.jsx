@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Renderer from "three-coverage-heatmap";
+import Renderer from "react-coverage-heatmap";
 
 const wallsAABBs = [
   [

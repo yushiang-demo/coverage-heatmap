@@ -1,0 +1,7 @@
+{
+  "name": "react-coverage-heatmap",
+  "version": "1.0.0",
+  "dependencies": {
+    "three-coverage-heatmap": "1.0.0"
+  }
+}

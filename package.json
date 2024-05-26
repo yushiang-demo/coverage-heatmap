@@ -19,7 +19,7 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "three-coverage-heatmap": "1.0.0"
+    "react-coverage-heatmap": "1.0.0"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "1.4.0",

@@ -1,2 +1,2 @@
-import Renderer from "three-coverage-heatmap";
+import Renderer from "react-coverage-heatmap";
 export default Renderer;
