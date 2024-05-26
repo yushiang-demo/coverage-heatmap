@@ -74,7 +74,7 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
    * @param {Array<number>} options.signalIntensities - An array containing signal intensities.
    * @param {Array<THREE.Vector3>} options.aabbs - An array containing axis-aligned bounding box data.
    * @param {Array<THREE.Vector3>} options.planes - An array containing plane data.
-   * @param {THREE.ShaderMaterial} options.map - An object representing a map.
+   * @param {THREE.Texture} options.map - An object representing a map.
    * @returns {void}
    */
   setUniforms({
