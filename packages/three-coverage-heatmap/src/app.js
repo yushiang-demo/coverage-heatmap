@@ -1,133 +1,140 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import HeatmapMaterial from "./Materials/HeatmapMaterial";
+import HeatmapMaterial from "./Material/HeatmapMaterial";
+import RoomBufferGeometry from "./Geometry/RoomBufferGeometry";
 
 /** @class */
-function App() {
-  const heatmapMaterial = new HeatmapMaterial();
-  const obstacleMaterial = heatmapMaterial;
-  const scene = new THREE.Scene();
+class App {
+  constructor() {
+    this._scene = new THREE.Scene();
 
-  const setSignal = (() => {
-    const group = new THREE.Group();
-    scene.add(group);
-    return (data) => {
-      if (!data) return;
-      group.clear();
-      data.forEach((position) => {
-        const geometry = new THREE.SphereGeometry(0.1, 16, 16);
-        const material = new THREE.MeshBasicMaterial({
-          color: 0,
-          wireframe: true,
-        });
-        const accessPoint = new THREE.Mesh(geometry, material);
-        accessPoint.position.fromArray(position);
-        group.add(accessPoint);
+    this.heatmapMaterial = new HeatmapMaterial();
+    this.roomGeometry = new RoomBufferGeometry();
+    this.roomGeometry.setFloor(20, 20);
+    const room = new THREE.Mesh(this.roomGeometry, this.heatmapMaterial);
+    this._scene.add(room);
+
+    this._signalGroup = new THREE.Group();
+    this._scene.add(this._signalGroup);
+  }
+
+  /**
+   * Sets a signal at specific positions in a 3D dimension.
+   * @param {Array<Vector.Vector3>} data An array containing vectors representing positions in 3D space where signals are set.
+   * @example
+   * app.setSignal([
+   *   [0, 0, 0],
+   *   [1, 1, 1]
+   * ]);
+   */
+  setSignal(data) {
+    if (!data) return;
+    this._signalGroup.clear();
+    data.forEach((position) => {
+      const geometry = new THREE.SphereGeometry(0.1, 16, 16);
+      const material = new THREE.MeshBasicMaterial({
+        color: 0,
+        wireframe: true,
       });
+      const accessPoint = new THREE.Mesh(geometry, material);
+      accessPoint.position.fromArray(position);
+      this._signalGroup.add(accessPoint);
+    });
 
-      heatmapMaterial.setUniforms({
-        signalCount: data.length,
-        signals: data.map((arr) => new THREE.Vector3().fromArray(arr)),
-      });
-    };
-  })();
+    this.heatmapMaterial.setUniforms({
+      signalCount: data.length,
+      signals: data.map((arr) => new THREE.Vector3().fromArray(arr)),
+    });
+  }
 
-  const setAABB = (() => {
-    const group = new THREE.Group();
-    scene.add(group);
+  /**
+   * Sets the Axis-Aligned Bounding Box (AABB) data.
+   * @param {Array<Vector.Vector3Pair>} data An array containing two elements, each representing a start and end vector, both three-dimensional.
+   * @example
+   * app.setAABB([
+   *   [[0, 0, 0], [1, 1, 1]]
+   * ]);
+   */
+  setAABB(data) {
+    if (!data) return;
+    this.roomGeometry.setAABB(data);
+    this.heatmapMaterial.setUniforms({
+      aabbCount: data.length,
+      aabbs: data.flatMap(([min, max]) => [
+        new THREE.Vector3().fromArray(min),
+        new THREE.Vector3().fromArray(max),
+      ]),
+    });
+  }
 
-    return (data) => {
-      if (!data) return;
-      group.clear();
-      data.forEach(([min, max]) => {
-        const width = max[0] - min[0];
-        const height = max[1] - min[1];
-        const depth = max[2] - min[2];
+  /**
+   * Sets the plane data.
+   * @param {Array<Vector.Vector3Pair>} data An array containing two elements, each representing a start and end vector, both three-dimensional.
+   * @example
+   * app.setPlane([
+   *   [[0, 0, 0], [1, 1, 1]]
+   * ]);
+   */
+  setPlane(data) {
+    if (!data) return;
+    this.roomGeometry.setPlane(data);
+    this.heatmapMaterial.setUniforms({
+      planeCount: data.length * 2,
+      planes: data.flatMap(([min, max]) => [
+        new THREE.Vector3().fromArray(min),
+        new THREE.Vector3().fromArray(max),
+      ]),
+    });
+  }
 
-        const boxGeometry = new THREE.BoxGeometry(width, height, depth);
-        boxGeometry.setAttribute(
-          "uv",
-          new THREE.BufferAttribute(new Float32Array([]), 2)
-        );
-
-        const boxMesh = new THREE.Mesh(boxGeometry, obstacleMaterial);
-        boxMesh.position.set(
-          (max[0] + min[0]) / 2,
-          (max[1] + min[1]) / 2,
-          (max[2] + min[2]) / 2
-        );
-        group.add(boxMesh);
-      });
-
-      heatmapMaterial.setUniforms({
-        aabbCount: data.length,
-        aabbs: data.flatMap(([min, max]) => [
-          new THREE.Vector3().fromArray(min),
-          new THREE.Vector3().fromArray(max),
-        ]),
-      });
-    };
-  })();
-
-  const setPlane = (() => {
-    const group = new THREE.Group();
-    scene.add(group);
-    return (data) => {
-      if (!data) return;
-      group.clear();
-      data.forEach(([min, max]) => {
-        const vertexVectors = [
-          new THREE.Vector3(min[0], min[1], min[2]),
-          new THREE.Vector3(max[0], min[1], max[2]),
-          new THREE.Vector3(max[0], max[1], max[2]),
-          new THREE.Vector3(min[0], max[1], min[2]),
-          new THREE.Vector3(min[0], min[1], min[2]),
-          new THREE.Vector3(max[0], max[1], max[2]),
-        ];
-
-        const geometry = new THREE.BufferGeometry();
-        const vertices = new Float32Array(
-          vertexVectors.flatMap((vec) => vec.toArray())
-        );
-        geometry.setAttribute(
-          "position",
-          new THREE.BufferAttribute(vertices, 3)
-        );
-        geometry.computeVertexNormals();
-        const mesh = new THREE.Mesh(geometry, obstacleMaterial);
-        group.add(mesh);
-      });
-
-      heatmapMaterial.setUniforms({
-        planeCount: data.length * 2,
-        planes: data.flatMap(([min, max]) => [
-          new THREE.Vector3().fromArray(min),
-          new THREE.Vector3().fromArray(max),
-        ]),
-      });
-    };
-  })();
-
-  const setIsSignalIndex = (data) => {
-    heatmapMaterial.setUniforms({
+  /**
+   * Sets whether to show the indexMap or not.
+   * @param {boolean} data A boolean value indicating whether to show the indexMap.
+   * @example
+   * app.setIsSignalIndex(true);
+   */
+  setIsSignalIndex(data) {
+    this.heatmapMaterial.setUniforms({
       isSignalIndex: data,
     });
-  };
+  }
 
-  const setSignalIntensity = (data) => {
-    heatmapMaterial.setUniforms({
-      signalIntensity: data,
+  /**
+   * Sets the intensity for each signal.
+   * @param {Array<number>} data An array containing intensity values for each signal.
+   * @example
+   * app.setSignalIntensities([0.2, 0.5, 0.8]);
+   */
+  setSignalIntensities(data) {
+    this.heatmapMaterial.setUniforms({
+      signalIntensities: data,
     });
-  };
+  }
 
-  const setTexture = (url) => {
+  /**
+   * Sets the floorplan used as a texture.
+   * @param {string} url The URL of the floorplan image.
+   * @example
+   * app.setTexture('https://example.com/floorplan.jpg');
+   */
+  setTexture(url) {
     const texture = new THREE.TextureLoader().load(url);
-    heatmapMaterial.setUniforms({
+    this.heatmapMaterial.setUniforms({
       map: texture,
     });
-  };
+  }
 
-  const init = (canvas) => {
+  /**
+   * Initializes Three.js rendering on a given canvas element.
+   * @param {HTMLCanvasElement} canvas The canvas element to bind Three.js rendering.
+   * @returns {Object} An object containing two callbacks:
+   * - resizeCanvas: A callback to resize the renderer when the size of the canvas changes.
+   * - dispose: A callback to clear the rendering process if the canvas element is removed from the DOM.
+   * @example
+   * const canvasElement = document.getElementById('myCanvas');
+   * const {resizeCanvas, dispose} = app.init(canvasElement);
+   */
+  init(canvas) {
     const renderer = new THREE.WebGLRenderer({
       canvas,
       alpha: true,
@@ -143,12 +150,6 @@ function App() {
     camera.position.set(0, 20, 100);
     controls.update();
 
-    const floorGeometry = new THREE.PlaneGeometry(20, 20);
-
-    const heatmap = new THREE.Mesh(floorGeometry, heatmapMaterial);
-    heatmap.rotateX(-Math.PI / 2);
-    scene.add(heatmap);
-
     camera.position.z = 5;
 
     let frameIndex = 0;
@@ -157,7 +158,7 @@ function App() {
 
       controls.update();
 
-      renderer.render(scene, camera);
+      renderer.render(this._scene, camera);
     };
     const dispose = () => {
       cancelAnimationFrame(frameIndex);
@@ -177,17 +178,7 @@ function App() {
       resizeCanvas,
       dispose,
     };
-  };
-
-  return {
-    init,
-    setSignal,
-    setSignalIntensity,
-    setAABB,
-    setPlane,
-    setIsSignalIndex,
-    setTexture,
-  };
+  }
 }
 
 export default App;

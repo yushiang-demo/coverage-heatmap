@@ -4,7 +4,7 @@ import ThreeCoverageHeatmap from "three-coverage-heatmap";
 const Renderer = ({
   texture,
   isSignalIndex,
-  signalIntensity,
+  signalIntensities,
   signals,
   aabbs,
   planes,
@@ -22,8 +22,8 @@ const Renderer = ({
   }, [isSignalIndex]);
 
   useEffect(() => {
-    ThreeApp.setSignalIntensity(signalIntensity);
-  }, [signalIntensity]);
+    ThreeApp.setSignalIntensities(signalIntensities);
+  }, [signalIntensities]);
 
   useEffect(() => {
     ThreeApp.setSignal(signals);
