@@ -1,12 +1,12 @@
 import * as THREE from "three";
 
-const vertexShader = `
-    varying vec4 world_position;
+const getVertexShader = () => `
+varying vec4 world_position;
 
-    void main() {
-        world_position = modelMatrix * vec4(position, 1.0);
-        gl_Position =  projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
+void main() {
+  world_position = modelMatrix * vec4(position, 1.0);
+  gl_Position =  projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
 `;
 
 const getFragmentShader = (signalCount, aabbCount, planeCount) => `
@@ -132,52 +132,61 @@ void main() {
 
 `;
 
-export const createHeatmapMaterial = () => {
-  // https://webglreport.com/ shows max uniform vectors on mobile is 256;
-  const MAX_SIGNAL_COUNT = 15;
-  const MAX_AABB_COUNT = 50;
-  const MAX_PLANE_COUNT = 20;
+class HeatmapMaterial extends THREE.ShaderMaterial {
+  static _getUniformLimitation() {
+    // https://webglreport.com/ shows max uniform vectors on mobile is 256;
+    return {
+      MAX_SIGNAL_COUNT: 15,
+      MAX_AABB_COUNT: 50,
+      MAX_PLANE_COUNT: 20,
+    };
+  }
 
-  const material = new THREE.ShaderMaterial({
-    side: THREE.DoubleSide,
-    uniforms: {
-      isSignalIndex: {
-        value: false,
-      },
-      map: {
-        value: null,
-      },
-      planeCount: {
-        value: 0,
-      },
-      aabbCount: {
-        value: 0,
-      },
-      signalCount: {
-        value: 0,
-      },
-      signalIntensity: {
-        value: Array(MAX_SIGNAL_COUNT).fill(10),
-      },
-      signals: {
-        value: Array(MAX_SIGNAL_COUNT).fill(new THREE.Vector3()),
-      },
-      aabbs: {
-        value: Array(MAX_AABB_COUNT * 2).fill(new THREE.Vector3()),
-      },
-      planes: {
-        value: Array(MAX_PLANE_COUNT * 2).fill(new THREE.Vector3()),
-      },
-    },
-    vertexShader,
-    fragmentShader: getFragmentShader(
-      MAX_SIGNAL_COUNT,
-      MAX_AABB_COUNT,
-      MAX_PLANE_COUNT
-    ),
-  });
+  constructor() {
+    const { MAX_SIGNAL_COUNT, MAX_AABB_COUNT, MAX_PLANE_COUNT } =
+      HeatmapMaterial._getUniformLimitation();
 
-  const setUniforms = ({
+    super({
+      side: THREE.DoubleSide,
+      uniforms: {
+        isSignalIndex: {
+          value: false,
+        },
+        map: {
+          value: null,
+        },
+        planeCount: {
+          value: 0,
+        },
+        aabbCount: {
+          value: 0,
+        },
+        signalCount: {
+          value: 0,
+        },
+        signalIntensity: {
+          value: Array(MAX_SIGNAL_COUNT).fill(10),
+        },
+        signals: {
+          value: Array(MAX_SIGNAL_COUNT).fill(new THREE.Vector3()),
+        },
+        aabbs: {
+          value: Array(MAX_AABB_COUNT * 2).fill(new THREE.Vector3()),
+        },
+        planes: {
+          value: Array(MAX_PLANE_COUNT * 2).fill(new THREE.Vector3()),
+        },
+      },
+      vertexShader: getVertexShader(),
+      fragmentShader: getFragmentShader(
+        MAX_SIGNAL_COUNT,
+        MAX_AABB_COUNT,
+        MAX_PLANE_COUNT
+      ),
+    });
+  }
+
+  setUniforms({
     isSignalIndex,
     planeCount,
     aabbCount,
@@ -187,57 +196,60 @@ export const createHeatmapMaterial = () => {
     aabbs,
     planes,
     map,
-  }) => {
+  }) {
+    const { MAX_SIGNAL_COUNT, MAX_AABB_COUNT, MAX_PLANE_COUNT } =
+      HeatmapMaterial._getUniformLimitation();
+
     const isDefined = (value) => value !== undefined;
 
     if (isDefined(isSignalIndex)) {
-      material.uniforms.isSignalIndex.value = isSignalIndex;
+      this.uniforms.isSignalIndex.value = isSignalIndex;
     }
 
     if (isDefined(planeCount)) {
-      material.uniforms.planeCount.value = planeCount;
+      this.uniforms.planeCount.value = planeCount;
     }
 
     if (isDefined(aabbCount)) {
-      material.uniforms.aabbCount.value = aabbCount;
+      this.uniforms.aabbCount.value = aabbCount;
     }
 
     if (isDefined(signalCount)) {
-      material.uniforms.signalCount.value = signalCount;
+      this.uniforms.signalCount.value = signalCount;
     }
 
     if (signalIntensity) {
-      material.uniforms.signalIntensity.value = [
+      this.uniforms.signalIntensity.value = [
         ...signalIntensity,
         ...Array(MAX_SIGNAL_COUNT - signalIntensity.length).fill(0),
       ];
     }
 
     if (signals) {
-      material.uniforms.signals.value = [
+      this.uniforms.signals.value = [
         ...signals,
         ...Array(MAX_SIGNAL_COUNT - signals.length).fill(new THREE.Vector3()),
       ];
     }
 
     if (aabbs) {
-      material.uniforms.aabbs.value = [
+      this.uniforms.aabbs.value = [
         ...aabbs,
         ...Array(MAX_AABB_COUNT * 2 - aabbs.length).fill(new THREE.Vector3()),
       ];
     }
 
     if (planes) {
-      material.uniforms.planes.value = [
+      this.uniforms.planes.value = [
         ...planes,
         ...Array(MAX_PLANE_COUNT * 2 - planes.length).fill(new THREE.Vector3()),
       ];
     }
 
     if (map) {
-      material.uniforms.map.value = map;
+      this.uniforms.map.value = map;
     }
-  };
+  }
+}
 
-  return { material, setUniforms };
-};
+export default HeatmapMaterial;

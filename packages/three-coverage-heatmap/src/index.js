@@ -1,10 +1,9 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { createHeatmapMaterial } from "./heatmapMaterial";
+import HeatmapMaterial from "./Materials/HeatmapMaterial";
 
 function App() {
-  const { material: heatmapMaterial, setUniforms: setHeatmapUniforms } =
-    createHeatmapMaterial();
+  const heatmapMaterial = new HeatmapMaterial();
   const obstacleMaterial = heatmapMaterial;
   const scene = new THREE.Scene();
 
@@ -25,7 +24,7 @@ function App() {
         group.add(accessPoint);
       });
 
-      setHeatmapUniforms({
+      heatmapMaterial.setUniforms({
         signalCount: data.length,
         signals: data.map((arr) => new THREE.Vector3().fromArray(arr)),
       });
@@ -59,7 +58,7 @@ function App() {
         group.add(boxMesh);
       });
 
-      setHeatmapUniforms({
+      heatmapMaterial.setUniforms({
         aabbCount: data.length,
         aabbs: data.flatMap(([min, max]) => [
           new THREE.Vector3().fromArray(min),
@@ -98,7 +97,7 @@ function App() {
         group.add(mesh);
       });
 
-      setHeatmapUniforms({
+      heatmapMaterial.setUniforms({
         planeCount: data.length * 2,
         planes: data.flatMap(([min, max]) => [
           new THREE.Vector3().fromArray(min),
@@ -109,20 +108,20 @@ function App() {
   })();
 
   const setIsSignalIndex = (data) => {
-    setHeatmapUniforms({
+    heatmapMaterial.setUniforms({
       isSignalIndex: data,
     });
   };
 
   const setSignalIntensity = (data) => {
-    setHeatmapUniforms({
+    heatmapMaterial.setUniforms({
       signalIntensity: data,
     });
   };
 
   const setTexture = (url) => {
     const texture = new THREE.TextureLoader().load(url);
-    setHeatmapUniforms({
+    heatmapMaterial.setUniforms({
       map: texture,
     });
   };
