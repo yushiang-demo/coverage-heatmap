@@ -14,6 +14,7 @@
     "theme_opts": {
       "default_theme": "light",
       "title": "Three Coverage Heatmap",
+      "base_url": "https://yushiang-demo.github.io/coverage-heatmap/doc/",
       "menu": [
         {
           "title": "Github",
