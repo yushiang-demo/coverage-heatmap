@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import HeatmapMaterial from "./Materials/HeatmapMaterial";
 
 /** @class */
-function App() {
+function ThreeCoverageHeatmap() {
   const heatmapMaterial = new HeatmapMaterial();
   const obstacleMaterial = heatmapMaterial;
   const scene = new THREE.Scene();
@@ -114,9 +114,9 @@ function App() {
     });
   };
 
-  const setSignalIntensity = (data) => {
+  const setSignalIntensities = (data) => {
     heatmapMaterial.setUniforms({
-      signalIntensity: data,
+      signalIntensities: data,
     });
   };
 
@@ -182,7 +182,7 @@ function App() {
   return {
     init,
     setSignal,
-    setSignalIntensity,
+    setSignalIntensities,
     setAABB,
     setPlane,
     setIsSignalIndex,
@@ -190,4 +190,4 @@ function App() {
   };
 }
 
-export default App;
+export default ThreeCoverageHeatmap;

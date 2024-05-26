@@ -122,7 +122,7 @@ const App = () => {
   const [hasWall, setHasWall] = useState(true);
   const [doorPercentage, setDoorPercentage] = useState(0.5);
 
-  const [signalIntensity, setSignalIntensity] = useState([10, 10]);
+  const [signalIntensities, setSignalIntensities] = useState([10, 10]);
   const [signals] = useState([
     [0, 1.1, -4],
     [0, 2.0, 8.1],
@@ -147,9 +147,9 @@ const App = () => {
 
   const onIntensityChange = (index) => (e) => {
     const value = parseFloat(e.target.value);
-    const copy = [...signalIntensity];
+    const copy = [...signalIntensities];
     copy[index] = value;
-    setSignalIntensity(copy);
+    setSignalIntensities(copy);
   };
 
   return (
@@ -176,7 +176,7 @@ const App = () => {
           position: "fixed",
         }}
       >
-        {signalIntensity.map((intensity, index) => {
+        {signalIntensities.map((intensity, index) => {
           const id = `signal${index}_intensity`;
           return (
             <React.Fragment key={id}>
@@ -233,7 +233,7 @@ const App = () => {
       <Renderer
         texture={"/coverage-heatmap/floorplan.png"}
         isSignalIndex={isSignalIndex}
-        signalIntensity={signalIntensity}
+        signalIntensities={signalIntensities}
         signals={signals}
         aabbs={aabbs}
         planes={planes}

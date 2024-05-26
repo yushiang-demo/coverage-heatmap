@@ -29,6 +29,11 @@
       ]
     }
   },
+  "templates": {
+    "default": {
+      "outputSourceFiles": false
+    }
+  },
   "markdown": {
     "hardwrap": false,
     "idInHeadings": true

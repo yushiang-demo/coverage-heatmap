@@ -11,7 +11,7 @@ void main() {
 
 const getFragmentShader = (signalCount, aabbCount, planeCount) => `
 uniform vec3 signals[${signalCount}];
-uniform float signalIntensity[${signalCount}];
+uniform float signalIntensities[${signalCount}];
 uniform int signalCount;
 uniform vec3 aabbs[${aabbCount * 2}];
 uniform int aabbCount;
@@ -117,7 +117,7 @@ void main() {
     }
 
     float wallDecay = wallDistance * 0.2;
-    float newDensity = decay(totalDistance - wallDistance, signalIntensity[signalIndex]) - wallDecay;
+    float newDensity = decay(totalDistance - wallDistance, signalIntensities[signalIndex]) - wallDecay;
 
     if (newDensity > density) {
       density = newDensity;
@@ -132,10 +132,17 @@ void main() {
 
 `;
 
-/** @class */
+/**
+ * Responsibles for rendering a heatmap visualization
+ * based on the intensity of signals within a three-dimensional environment.
+ * It provides a visually intuitive representation of signal strength,
+ * allowing users to identify areas of high and low signal intensity.
+ * @category Materials
+ * @class
+ * @extends THREE.ShaderMaterial
+ */
 class HeatmapMaterial extends THREE.ShaderMaterial {
   static _getUniformLimitation() {
-    // https://webglreport.com/ shows max uniform vectors on mobile is 256;
     return {
       MAX_SIGNAL_COUNT: 15,
       MAX_AABB_COUNT: 50,
@@ -165,7 +172,7 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
         signalCount: {
           value: 0,
         },
-        signalIntensity: {
+        signalIntensities: {
           value: Array(MAX_SIGNAL_COUNT).fill(10),
         },
         signals: {
@@ -187,13 +194,27 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
     });
   }
 
+  /**
+   * Sets uniforms for the application.
+   * @param {Object} options - An object containing various uniform parameters.
+   * @param {boolean} options.isSignalIndex - Indicates whether the uniform is for displaying the indexMap of coverage.
+   * @param {number} options.planeCount - The count of planes.
+   * @param {number} options.aabbCount - The count of axis-aligned bounding boxes.
+   * @param {number} options.signalCount - The count of signals.
+   * @param {Array<number>} options.signals - An array containing signal data.
+   * @param {Array<number>} options.signalIntensities - An array containing signal intensities.
+   * @param {Array<number>} options.aabbs - An array containing axis-aligned bounding box data.
+   * @param {Array<number>} options.planes - An array containing plane data.
+   * @param {THREE.ShaderMaterial} options.map - An object representing a map.
+   * @returns {void}
+   */
   setUniforms({
     isSignalIndex,
     planeCount,
     aabbCount,
     signalCount,
     signals,
-    signalIntensity,
+    signalIntensities,
     aabbs,
     planes,
     map,
@@ -219,10 +240,10 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
       this.uniforms.signalCount.value = signalCount;
     }
 
-    if (signalIntensity) {
-      this.uniforms.signalIntensity.value = [
-        ...signalIntensity,
-        ...Array(MAX_SIGNAL_COUNT - signalIntensity.length).fill(0),
+    if (signalIntensities) {
+      this.uniforms.signalIntensities.value = [
+        ...signalIntensities,
+        ...Array(MAX_SIGNAL_COUNT - signalIntensities.length).fill(0),
       ];
     }
 
