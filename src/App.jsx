@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Renderer from "three-coverage-heatmap";
+import Renderer from "react-coverage-heatmap";
 
 const wallsAABBs = [
   [
@@ -165,10 +165,10 @@ const App = () => {
         }}
       >
         <a href={"https://github.com/yushiang-demo/coverage-heatmap"}>
-          <img src="/coverage-heatmap/github.png" />
+          <img width="40px" src="/coverage-heatmap/github.svg" />
         </a>
         <a href={"/coverage-heatmap/doc/"}>
-          <img src="/coverage-heatmap/storybook.png" />
+          <img width="40px" src="/coverage-heatmap/doc.svg" />
         </a>
       </div>
       <div

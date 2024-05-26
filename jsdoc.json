@@ -1,0 +1,35 @@
+{
+  "source": {
+    "include": ["packages/three-coverage-heatmap"],
+    "includePattern": ".js$",
+    "excludePattern": "(node_modules/|docs)"
+  },
+  "plugins": ["plugins/markdown"],
+  "opts": {
+    "encoding": "utf8",
+    "destination": "./dist/doc",
+    "recurse": true,
+    "verbose": true,
+    "template": "./node_modules/clean-jsdoc-theme",
+    "theme_opts": {
+      "default_theme": "light",
+      "title": "Three Coverage Heatmap",
+      "menu": [
+        {
+          "title": "Github",
+          "link": "https://github.com/yushiang-demo/coverage-heatmap",
+          "target": "_blank"
+        },
+        {
+          "title": "React Coverage Heatmap",
+          "link": "/coverage-heatmap/storybook/",
+          "target": "_blank"
+        }
+      ]
+    }
+  },
+  "markdown": {
+    "hardwrap": false,
+    "idInHeadings": true
+  }
+}

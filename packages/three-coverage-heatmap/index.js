@@ -1,3 +1,5 @@
-import Renderer from "./src/components/Renderer";
+import App from "./src/app";
 
-export default Renderer;
+export * as HeatmapMaterial from "./src/Materials/HeatmapMaterial";
+
+export default App;

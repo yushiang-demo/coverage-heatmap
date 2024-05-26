@@ -22,7 +22,6 @@ jobs:
       - run: |
           yarn install
           yarn build
-          yarn build-storybook
           touch ./dist/.nojekyll
           git config --global user.email "github@example.com"
           git config --global user.name "git workflows"

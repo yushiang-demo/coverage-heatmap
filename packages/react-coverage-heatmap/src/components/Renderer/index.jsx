@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import ThreeRenderer from "../../three";
+import ThreeCoverageHeatmap from "three-coverage-heatmap";
 
 const Renderer = ({
   texture,
@@ -9,7 +9,7 @@ const Renderer = ({
   aabbs,
   planes,
 }) => {
-  const [ThreeApp] = useState(new ThreeRenderer());
+  const [ThreeApp] = useState(new ThreeCoverageHeatmap());
   const divRef = useRef(null);
   const canvasRef = useRef(null);
 
