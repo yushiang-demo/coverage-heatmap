@@ -21,9 +21,7 @@ yarn build
 
 # Implementation Details
 
-For each fragment $i$, we perform raycasting $R_{i,j}$ from signal $j$, computing intersections with axis-aligned bounding boxes (AABBs) and triangles to separate into airborne ${A_{i,y}}$ and obstacle ${O_{i,y}}$ components as follows:
-
-$R_{i,j} = {A}_{i,j} + {O}_{i,j}$ 
+For each fragment $i$, we perform raycasting $R_{i,j}$ from signal $j$, computing intersections with axis-aligned bounding boxes (AABBs) and triangles to separate into airborne ${A_{i,j}}$ and obstacle ${O_{i,j}}$ components.
 
 Next, we calculate the signal intensity $𝑆_{fragment_i}$ of the fragment using two decay functions: $decay(S,D)$, which considers the original signal intensity $S_j$ and the airborne distance $length({A}_{i,j})$. and $attenuation(AABBs,Triangles,L)$, which accounts for spatial obstacles such as AABBs and triangles along the ray's path through the solid object.
 
@@ -33,8 +31,7 @@ $Attenuation_{i,j} = \sum_{k} \ attenuation(AABB_k,Triangle_k,length(O_{i,j}))$
 
 $S_{fragment_i} = \max_j (Decay_{i,j}-Attenuation_{i,j})$
 
-The algorithm described above is implemented in a [fragmenet shader](./packages/three-coverage-heatmap/src/Material/HeatmapMaterial/fragmentShader.js).
-
+For further details, you can read the source code of the [fragmenet shader](./packages/three-coverage-heatmap/src/Material/HeatmapMaterial/fragmentShader.js).
 
 # References
 
