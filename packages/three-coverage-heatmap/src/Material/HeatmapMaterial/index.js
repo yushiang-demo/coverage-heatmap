@@ -24,7 +24,6 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
       HeatmapMaterial._getUniformLimitation();
 
     super({
-      side: THREE.DoubleSide,
       uniforms: {
         isSignalIndex: {
           value: false,

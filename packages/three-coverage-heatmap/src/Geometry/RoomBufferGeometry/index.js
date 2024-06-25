@@ -9,6 +9,7 @@ class RoomBufferGeometry extends THREE.BufferGeometry {
   constructor() {
     super();
     this.aabbArray = [];
+    this.PLANE_THICKNESS = 8e-2;
     this.planeArray = [];
     this.floorVertices = [];
   }
@@ -36,16 +37,41 @@ class RoomBufferGeometry extends THREE.BufferGeometry {
       return data;
     });
     const planeVertices = this.planeArray.flatMap(([min, max]) => {
-      const vertexVectors = [
-        new THREE.Vector3(min[0], min[1], min[2]),
-        new THREE.Vector3(max[0], min[1], max[2]),
-        new THREE.Vector3(max[0], max[1], max[2]),
-        new THREE.Vector3(min[0], max[1], min[2]),
-        new THREE.Vector3(min[0], min[1], min[2]),
-        new THREE.Vector3(max[0], max[1], max[2]),
-      ];
+      const rotationMat = new THREE.Matrix4().lookAt(
+        new THREE.Vector3(min[0], 0, min[2]),
+        new THREE.Vector3(max[0], 0, max[2]),
+        new THREE.Vector3(0, 1, 0)
+      );
+      const quaternion = new THREE.Quaternion().setFromRotationMatrix(
+        rotationMat
+      );
 
-      return vertexVectors.flatMap((vec) => vec.toArray());
+      const depth = new THREE.Vector2(
+        max[0] - min[0],
+        max[2] - min[2]
+      ).length();
+      const height = max[1] - min[1];
+
+      const aabbGeometry = new THREE.BoxGeometry(
+        this.PLANE_THICKNESS,
+        height,
+        depth
+      );
+      aabbGeometry.applyQuaternion(quaternion);
+      aabbGeometry.translate(
+        (max[0] + min[0]) / 2,
+        (max[1] + min[1]) / 2,
+        (max[2] + min[2]) / 2
+      );
+
+      const vertices = [...aabbGeometry.attributes.position.array];
+      const index = [...aabbGeometry.getIndex().array];
+      const data = index.flatMap((index) => [
+        vertices[index * 3],
+        vertices[index * 3 + 1],
+        vertices[index * 3 + 2],
+      ]);
+      return data;
     });
 
     this.setAttribute(
@@ -76,6 +102,12 @@ class RoomBufferGeometry extends THREE.BufferGeometry {
       [1, 0, -1],
       [-1, 0, 1],
       [-1, 0, -1],
+      [1, 0, 1],
+      [1, 0, -1],
+      [-1, 0, 1],
+      [1, 0, -1],
+      [-1, 0, -1],
+      [-1, 0, 1],
     ].flatMap(([x, y, z]) => [(x * width) / 2, y, (z * length) / 2]);
     this._updateGeometry();
   }
