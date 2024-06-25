@@ -74,13 +74,13 @@ const furnitureAABBs = [
   ],
   [
     // bed
-    [-8.4, 0, -3.5],
     [-2.1, 1.0, -9.55],
+    [-8.4, 0, -3.5],
   ],
   [
     //cabinet
-    [-0.75, 0, -2.9],
     [1.02, 1.0, -9.55],
+    [-0.75, 0, -2.9],
   ],
 ];
 
@@ -93,7 +93,6 @@ const getPlanes = (percentage) => {
 
   return [
     [
-      [-7.1, 3, 0.73],
       [
         -7.1 +
           2.5 * Math.cos(MAX_ANGLE * percentage + MIN_ANGLE * (1 - percentage)),
@@ -101,6 +100,7 @@ const getPlanes = (percentage) => {
         0.73 +
           2.5 * Math.sin(MAX_ANGLE * percentage + MIN_ANGLE * (1 - percentage)),
       ],
+      [-7.1, 3, 0.73],
     ],
     [
       [4.05, 0, -0.6],
