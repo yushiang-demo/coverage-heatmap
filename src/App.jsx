@@ -232,6 +232,8 @@ const App = () => {
       </div>
       <Renderer
         texture={"/coverage-heatmap/floorplan.png"}
+        textCoordScale={[1 / 20, 1 / 20]}
+        textCoordSoffset={[0.5, 0.5]}
         isSignalIndex={isSignalIndex}
         signalIntensities={signalIntensities}
         signals={signals}
