@@ -7,6 +7,8 @@ uniform int aabbCount;
 uniform vec3 planes[${planeCount * 2}];
 uniform int planeCount;
 uniform sampler2D map;
+uniform vec2 mapScale;
+uniform vec2 mapOffset;
 uniform bool isSignalIndex;
 
 varying vec4 world_position;
@@ -115,7 +117,7 @@ void main() {
   }
 
   vec4 visualizedDensity = vec4(opacityToHSV(isSignalIndex? maxSignalIndex:density), 1.0);
-  vec4 color = texture2D(map, (world_position.xz/20.0)+0.5);
+  vec4 color = texture2D(map, (world_position.xz * mapScale) + mapOffset);
   gl_FragColor = mix(color, visualizedDensity, 0.4);
 }
 `;

@@ -114,13 +114,17 @@ class App {
   /**
    * Sets the floorplan used as a texture.
    * @param {string} url The URL of the floorplan image.
+   * @param {Array<number>} scale - The scale factors to apply to the sampling coordinates.
+   * @param {Array<number>} offset - The offsets for positioning the sampling coordinates.
    * @example
-   * app.setTexture('https://example.com/floorplan.jpg');
+   * app.setTexture("https://example.com/floorplan.jpg", [1, 1], [0, 0]);
    */
-  setTexture(url) {
+  setTexture(url, scale, offset) {
     const texture = new THREE.TextureLoader().load(url);
     this.heatmapMaterial.setUniforms({
       map: texture,
+      mapScale: new THREE.Vector2().fromArray(scale),
+      mapOffset: new THREE.Vector2().fromArray(offset),
     });
   }
 
