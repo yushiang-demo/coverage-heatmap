@@ -13,6 +13,8 @@ export default {
 export const ShowroomFloorAp = {
   args: {
     texture: "./floorplan.png",
+    textCoordScale: [1 / 20, 1 / 20],
+    textCoordSoffset: [0.5, 0.5],
     isSignalIndex: false,
     signalIntensities: [10],
     signals: [[0, 1e-3, 8.1]],
@@ -24,6 +26,8 @@ export const ShowroomFloorAp = {
 export const ShowroomCeilingAp = {
   args: {
     texture: "./floorplan.png",
+    textCoordScale: [1 / 20, 1 / 20],
+    textCoordSoffset: [0.5, 0.5],
     isSignalIndex: false,
     signalIntensities: [10],
     signals: [[0, 2.0, 8.1]],
@@ -35,6 +39,8 @@ export const ShowroomCeilingAp = {
 export const ShowroomTwoAps = {
   args: {
     texture: "./floorplan.png",
+    textCoordScale: [1 / 20, 1 / 20],
+    textCoordSoffset: [0.5, 0.5],
     isSignalIndex: false,
     signalIntensities: [10, 10],
     signals: [
@@ -49,6 +55,8 @@ export const ShowroomTwoAps = {
 export const ShowroomIndexMap = {
   args: {
     texture: "./floorplan.png",
+    textCoordScale: [1 / 20, 1 / 20],
+    textCoordSoffset: [0.5, 0.5],
     isSignalIndex: true,
     signalIntensities: [10, 10],
     signals: [
@@ -63,6 +71,8 @@ export const ShowroomIndexMap = {
 export const withoutDoor = {
   args: {
     texture: "./floorplan.png",
+    textCoordScale: [1 / 20, 1 / 20],
+    textCoordSoffset: [0.5, 0.5],
     isSignalIndex: false,
     signalIntensities: [10, 10],
     signals: [
@@ -76,6 +86,8 @@ export const withoutDoor = {
 export const withoutFurniture = {
   args: {
     texture: "./floorplan.png",
+    textCoordScale: [1 / 20, 1 / 20],
+    textCoordSoffset: [0.5, 0.5],
     isSignalIndex: false,
     signalIntensities: [10, 10],
     signals: [
@@ -89,6 +101,8 @@ export const withoutFurniture = {
 export const withoutWall = {
   args: {
     texture: "./floorplan.png",
+    textCoordScale: [1 / 20, 1 / 20],
+    textCoordSoffset: [0.5, 0.5],
     isSignalIndex: false,
     signalIntensities: [10, 10],
     signals: [

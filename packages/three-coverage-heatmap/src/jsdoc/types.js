@@ -46,6 +46,12 @@
  */
 
 /**
+ * Represents a three-dimensional coordinate [x, y, z].
+ * @typedef {Array<number>} Vector2
+ * @memberof Vector
+ */
+
+/**
  * Represents a coordinate pair [[x1, y1, z1], [x2, y2, z2]].
  * @typedef {Array<Vector3>} Vector3Pair
  * @memberof Vector

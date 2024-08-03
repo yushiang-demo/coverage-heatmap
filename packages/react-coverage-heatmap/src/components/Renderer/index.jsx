@@ -3,6 +3,8 @@ import ThreeCoverageHeatmap from "three-coverage-heatmap";
 
 const Renderer = ({
   texture,
+  textCoordScale,
+  textCoordSoffset,
   isSignalIndex,
   signalIntensities,
   signals,
@@ -14,8 +16,8 @@ const Renderer = ({
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    ThreeApp.setTexture(texture);
-  }, [texture]);
+    ThreeApp.setTexture(texture, textCoordScale, textCoordSoffset);
+  }, [texture, textCoordScale, textCoordSoffset]);
 
   useEffect(() => {
     ThreeApp.setIsSignalIndex(isSignalIndex);
