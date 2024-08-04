@@ -35,6 +35,12 @@
  */
 
 /**
+ * @typedef Vector2
+ * @memberof THREE
+ * @see {@link https://threejs.org/docs/?q=Vec#api/en/math/Vector2}
+ */
+
+/**
  * A namespace defined for fixed-size array.
  * @namespace Vector
  */
@@ -46,7 +52,7 @@
  */
 
 /**
- * Represents a three-dimensional coordinate [x, y, z].
+ * Represents a two-dimensional coordinate [x, y].
  * @typedef {Array<number>} Vector2
  * @memberof Vector
  */

@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import HeatmapMaterial from "./Material/HeatmapMaterial";
 import RoomBufferGeometry from "./Geometry/RoomBufferGeometry";
+import Sampler from "./Sampler";
 
 /** @class */
 class App {
@@ -14,8 +15,16 @@ class App {
     const room = new THREE.Mesh(this.roomGeometry, this.heatmapMaterial);
     this._scene.add(room);
 
+    this.sampler = new Sampler();
+    this._scene.add(this.sampler);
+
     this._signalGroup = new THREE.Group();
     this._scene.add(this._signalGroup);
+  }
+
+  _updateConfig(data) {
+    this.heatmapMaterial.setUniforms(data);
+    this.sampler.setUniforms(data);
   }
 
   /**
@@ -41,7 +50,7 @@ class App {
       this._signalGroup.add(accessPoint);
     });
 
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       signalCount: data.length,
       signals: data.map((arr) => new THREE.Vector3().fromArray(arr)),
     });
@@ -58,7 +67,7 @@ class App {
   setAABB(data) {
     if (!data) return;
     this.roomGeometry.setAABB(data);
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       aabbCount: data.length,
       aabbs: data.flatMap(([min, max]) => [
         new THREE.Vector3().fromArray(min),
@@ -78,7 +87,7 @@ class App {
   setPlane(data) {
     if (!data) return;
     this.roomGeometry.setPlane(data);
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       planeCount: data.length * 2,
       planes: data.flatMap(([min, max]) => [
         new THREE.Vector3().fromArray(min),
@@ -94,7 +103,7 @@ class App {
    * app.setIsSignalIndex(true);
    */
   setIsSignalIndex(data) {
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       isSignalIndex: data,
     });
   }
@@ -106,7 +115,7 @@ class App {
    * app.setSignalIntensities([0.2, 0.5, 0.8]);
    */
   setSignalIntensities(data) {
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       signalIntensities: data,
     });
   }
@@ -121,7 +130,7 @@ class App {
    */
   setTexture(url, scale, offset) {
     const texture = new THREE.TextureLoader().load(url);
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       map: texture,
       mapScale: new THREE.Vector2().fromArray(scale),
       mapOffset: new THREE.Vector2().fromArray(offset),
