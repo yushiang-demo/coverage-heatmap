@@ -7,6 +7,7 @@ import Sampler from "./Sampler";
 /** @class */
 class App {
   constructor() {
+    this._renderer = null;
     this._scene = new THREE.Scene();
 
     this.heatmapMaterial = new HeatmapMaterial();
@@ -25,6 +26,7 @@ class App {
   _updateConfig(data) {
     this.heatmapMaterial.setUniforms(data);
     this.sampler.setUniforms(data);
+    if (this._renderer) this.sampler.update(this._renderer);
   }
 
   /**
@@ -186,6 +188,8 @@ class App {
     };
 
     animate();
+
+    this._renderer = renderer;
 
     return {
       resizeCanvas,
