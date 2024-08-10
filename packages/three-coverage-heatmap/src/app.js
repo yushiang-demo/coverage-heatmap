@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import HeatmapMaterial from "./Material/HeatmapMaterial";
 import RoomBufferGeometry from "./Geometry/RoomBufferGeometry";
-import Sampler from "./Sampler";
+import IsoSurface from "./IsoSurface";
 
 /** @class */
 class App {
@@ -16,8 +16,8 @@ class App {
     const room = new THREE.Mesh(this.roomGeometry, this.heatmapMaterial);
     this._scene.add(room);
 
-    this.sampler = new Sampler();
-    this._scene.add(this.sampler);
+    this.isoSurface = new IsoSurface();
+    this._scene.add(this.isoSurface);
 
     this._signalGroup = new THREE.Group();
     this._scene.add(this._signalGroup);
@@ -25,8 +25,8 @@ class App {
 
   _updateConfig(data) {
     this.heatmapMaterial.setUniforms(data);
-    this.sampler.setUniforms(data);
-    if (this._renderer) this.sampler.update(this._renderer);
+    this.isoSurface.setUniforms(data);
+    if (this._renderer) this.isoSurface.update(this._renderer);
   }
 
   /**

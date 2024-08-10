@@ -8,9 +8,9 @@ const SAMPLES_PER_AXIS = 50;
 const SAMPLES_SCALE = [20, 3, 20];
 const SAMPLES_OFFSET = [-10, 0, -10];
 
-class Sampler extends THREE.Points {
+class IsoSurface extends THREE.Points {
   constructor() {
-    const heatmapPlanes = (() => {
+    const sampler = (() => {
       const geometry = new THREE.BufferGeometry();
       const material = new HeatmapTextureMaterial();
       const { vertices, uvs } = ((layers, scale, offset) => {
@@ -103,7 +103,7 @@ class Sampler extends THREE.Points {
     material.size = 0.1;
     super(geometry, material);
 
-    this.heatmapPlanes = heatmapPlanes;
+    this.sampler = sampler;
     this.geometry = geometry;
     this.material = material;
     this.resolution = resolution;
@@ -121,8 +121,12 @@ class Sampler extends THREE.Points {
       true,
       100000
     );
-    isoSurface.position.set(0, 10, 0);
-    isoSurface.scale.set(10, 10, 10);
+    isoSurface.position.set(0, SAMPLES_SCALE[1] / 2, 0);
+    isoSurface.scale.set(
+      SAMPLES_SCALE[0] / 2,
+      SAMPLES_SCALE[1] / 2,
+      SAMPLES_SCALE[2] / 2
+    );
     isoSurface.isolation = 175;
     this.add(isoSurface);
     this.isoSurface = isoSurface;
@@ -130,7 +134,7 @@ class Sampler extends THREE.Points {
 
   update(renderer) {
     renderer.setRenderTarget(this.renderTarget);
-    renderer.render(this.heatmapPlanes.scene, new THREE.Camera());
+    renderer.render(this.sampler.scene, new THREE.Camera());
     renderer.setRenderTarget(null);
     const colors = new Array(TEXTURE_ALTAS_SIZE ** 2)
       .fill(0)
@@ -154,7 +158,7 @@ class Sampler extends THREE.Points {
     this.isoSurface.reset();
 
     const self = this;
-    new Array(LAYER_COUNT)
+    new Array(SAMPLES_PER_AXIS)
       .fill(0)
       .flatMap((_, y) =>
         new Array(SAMPLES_PER_AXIS ** 2)
@@ -165,7 +169,12 @@ class Sampler extends THREE.Points {
             Math.floor(index / SAMPLES_PER_AXIS),
           ])
       )
-      .forEach(([x, y, z], index) => {
+      .forEach(([x, y, z]) => {
+        const index =
+          Math.floor((y / SAMPLES_PER_AXIS) * LAYER_COUNT) *
+            SAMPLES_PER_AXIS ** 2 +
+          z * SAMPLES_PER_AXIS +
+          x;
         self.isoSurface.setCell(x, y, z, colors[index * 4]);
       });
 
@@ -181,8 +190,8 @@ class Sampler extends THREE.Points {
   }
 
   setUniforms(data) {
-    this.heatmapPlanes.material.setUniforms(data);
+    this.sampler.material.setUniforms(data);
   }
 }
 
-export default Sampler;
+export default IsoSurface;
