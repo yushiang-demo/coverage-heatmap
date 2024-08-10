@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import HeatmapTextureMaterial from "../Material/HeatmapTextureMaterial";
+import { MarchingCubes } from "three/addons/objects/MarchingCubes.js";
 
 const LAYER_COUNT = 3 ** 2;
 const TEXTURE_ALTAS_SIZE = Math.ceil(Math.sqrt(LAYER_COUNT));
@@ -107,6 +108,24 @@ class Sampler extends THREE.Points {
     this.material = material;
     this.resolution = resolution;
     this.renderTarget = renderTarget;
+
+    const isoSurface = new MarchingCubes(
+      SAMPLES_PER_AXIS,
+      new THREE.MeshBasicMaterial({
+        color: "red",
+        side: THREE.BackSide,
+        opacity: 0.5,
+        transparent: true,
+      }),
+      true,
+      true,
+      100000
+    );
+    isoSurface.position.set(0, 10, 0);
+    isoSurface.scale.set(10, 10, 10);
+    isoSurface.isolation = 175;
+    this.add(isoSurface);
+    this.isoSurface = isoSurface;
   }
 
   update(renderer) {
@@ -131,6 +150,27 @@ class Sampler extends THREE.Points {
 
         return [...prev, ...pixels];
       }, []);
+
+    this.isoSurface.reset();
+
+    const self = this;
+    new Array(LAYER_COUNT)
+      .fill(0)
+      .flatMap((_, y) =>
+        new Array(SAMPLES_PER_AXIS ** 2)
+          .fill(0)
+          .map((_, index) => [
+            index % SAMPLES_PER_AXIS,
+            y,
+            Math.floor(index / SAMPLES_PER_AXIS),
+          ])
+      )
+      .forEach(([x, y, z], index) => {
+        self.isoSurface.setCell(x, y, z, colors[index * 4]);
+      });
+
+    this.isoSurface.update();
+
     this.geometry.setAttribute(
       "color",
       new THREE.BufferAttribute(
