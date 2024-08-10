@@ -25,6 +25,9 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
 
     super({
       uniforms: {
+        isHeatmapColor: {
+          value: true,
+        },
         isSignalIndex: {
           value: false,
         },
@@ -71,6 +74,7 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
   /**
    * Sets uniforms for the application.
    * @param {Object} options - An object containing various uniform parameters.
+   * @param {boolean} options.isHeatmapColor - Indicates whether the uniform is for displaying the heatmap.
    * @param {boolean} options.isSignalIndex - Indicates whether the uniform is for displaying the indexMap of coverage.
    * @param {number} options.planeCount - The count of planes.
    * @param {number} options.aabbCount - The count of axis-aligned bounding boxes.
@@ -85,6 +89,7 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
    * @returns {void}
    */
   setUniforms({
+    isHeatmapColor,
     isSignalIndex,
     planeCount,
     aabbCount,
@@ -101,6 +106,10 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
       HeatmapMaterial._getUniformLimitation();
 
     const isDefined = (value) => value !== undefined;
+
+    if (isDefined(isHeatmapColor)) {
+      this.uniforms.isHeatmapColor.value = isHeatmapColor;
+    }
 
     if (isDefined(isSignalIndex)) {
       this.uniforms.isSignalIndex.value = isSignalIndex;

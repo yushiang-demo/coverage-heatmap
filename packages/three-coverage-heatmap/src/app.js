@@ -3,6 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import HeatmapMaterial from "./Material/HeatmapMaterial";
 import RoomBufferGeometry from "./Geometry/RoomBufferGeometry";
 import IsoSurface from "./IsoSurface";
+import UniformSampler3D from "./IsoSurface/UniformSampler3D";
 
 /** @class */
 class App {
@@ -10,14 +11,24 @@ class App {
     this._renderer = null;
     this._scene = new THREE.Scene();
 
+    const sizeXZ = 20;
+    const sizeY = 3;
+
+    const samplesY = 3 ** 2;
+    const samplesXZ = 50;
+    const samplesScale = [sizeXZ, sizeY, sizeXZ];
+    this.uniformSampler3D = new UniformSampler3D(
+      samplesY,
+      samplesXZ,
+      samplesScale
+    );
+    this.isoSurface = new IsoSurface(samplesY, samplesXZ, samplesScale);
+
     this.heatmapMaterial = new HeatmapMaterial();
     this.roomGeometry = new RoomBufferGeometry();
-    this.roomGeometry.setFloor(20, 20);
+    this.roomGeometry.setFloor(sizeXZ, sizeXZ);
     const room = new THREE.Mesh(this.roomGeometry, this.heatmapMaterial);
     this._scene.add(room);
-
-    this.isoSurface = new IsoSurface();
-    this._scene.add(this.isoSurface);
 
     this._signalGroup = new THREE.Group();
     this._scene.add(this._signalGroup);
@@ -25,8 +36,11 @@ class App {
 
   _updateConfig(data) {
     this.heatmapMaterial.setUniforms(data);
-    this.isoSurface.setUniforms(data);
-    if (this._renderer) this.isoSurface.update(this._renderer);
+    this.uniformSampler3D.setUniforms(data);
+    if (this._renderer) {
+      const colors = this.uniformSampler3D.sample(this._renderer);
+      this.isoSurface.updateFromColors(colors);
+    }
   }
 
   /**
@@ -95,6 +109,48 @@ class App {
         new THREE.Vector3().fromArray(min),
         new THREE.Vector3().fromArray(max),
       ]),
+    });
+  }
+
+  /**
+   * Sets whether to show the pointclod or not.
+   * @param {boolean} data A boolean value indicating whether to show the pointclod.
+   * @example
+   * app.setIsPointcloud(true);
+   */
+  setIsPointcloud(data) {
+    if (data) {
+      this._scene.add(this.uniformSampler3D._points);
+    } else {
+      this.uniformSampler3D._points.parent?.remove(
+        this.uniformSampler3D._points
+      );
+    }
+  }
+
+  /**
+   * Sets whether to show the isoSurface or not.
+   * @param {boolean} data A boolean value indicating whether to show the isoSurface.
+   * @example
+   * app.setIsIsoSurface(true);
+   */
+  setIsIsoSurface(data) {
+    if (data) {
+      this._scene.add(this.isoSurface);
+    } else {
+      this.isoSurface.parent?.remove(this.isoSurface);
+    }
+  }
+
+  /**
+   * Sets whether to show the heatmap or not.
+   * @param {boolean} data A boolean value indicating whether to show the heatmap.
+   * @example
+   * app.setIsHeatmapColor(true);
+   */
+  setIsHeatmapColor(data) {
+    this._updateConfig({
+      isHeatmapColor: data,
     });
   }
 

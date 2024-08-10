@@ -10,6 +10,7 @@ uniform sampler2D map;
 uniform vec2 mapScale;
 uniform vec2 mapOffset;
 uniform bool isSignalIndex;
+uniform bool isHeatmapColor;
 
 varying vec4 world_position;
 
@@ -27,9 +28,14 @@ vec3 opacityToHSV(float opacity) {
 }
 
 void main() {
+  vec4 color = texture2D(map, (world_position.xz * mapScale) + mapOffset);
+  if(!isHeatmapColor){
+    gl_FragColor = color;
+    return;
+  }
+
   Result result = getSignalDensity(world_position);
   vec4 visualizedDensity = vec4(opacityToHSV(isSignalIndex ? result.maxSignalIndex : result.density), 1.0);
-  vec4 color = texture2D(map, (world_position.xz * mapScale) + mapOffset);
   gl_FragColor = mix(color, visualizedDensity, 0.4);
 }
 `;
