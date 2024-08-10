@@ -16,8 +16,12 @@ const Renderer = ({
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    ThreeApp.setTexture(texture, textCoordScale, textCoordSoffset);
-  }, [texture, textCoordScale, textCoordSoffset]);
+    ThreeApp.setTexture(undefined, textCoordScale, textCoordSoffset);
+  }, [textCoordScale, textCoordSoffset]);
+
+  useEffect(() => {
+    ThreeApp.setTexture(texture);
+  }, [texture]);
 
   useEffect(() => {
     ThreeApp.setIsSignalIndex(isSignalIndex);

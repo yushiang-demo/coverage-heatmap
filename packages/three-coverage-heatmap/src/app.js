@@ -131,12 +131,18 @@ class App {
    * app.setTexture("https://example.com/floorplan.jpg", [1, 1], [0, 0]);
    */
   setTexture(url, scale, offset) {
-    const texture = new THREE.TextureLoader().load(url);
-    this._updateConfig({
-      map: texture,
-      mapScale: new THREE.Vector2().fromArray(scale),
-      mapOffset: new THREE.Vector2().fromArray(offset),
-    });
+    if (url) {
+      const texture = new THREE.TextureLoader().load(url);
+      this._updateConfig({
+        map: texture,
+      });
+    }
+
+    if (scale && offset)
+      this._updateConfig({
+        mapScale: new THREE.Vector2().fromArray(scale),
+        mapOffset: new THREE.Vector2().fromArray(offset),
+      });
   }
 
   /**
