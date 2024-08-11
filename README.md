@@ -1,6 +1,6 @@
 # 3D Coverage Heatmap
 
-Our project accurately simulates signal decay through obstacles, providing intensity estimates at each point. With support for real-time computation on mobile devices and easily extendable modules for complex scenarios, it offers a comprehensive toolkit for exploring signal transmission dynamics.
+Our project demonstrates the functionality of signal decay simulation through obstacles, providing intensity estimates at various points for visualization purposes. It supports real-time computation on mobile devices and features easily extendable modules for exploring complex scenarios. Note that while the intensity values are used for visualization, they do not reflect real-world signal behavior.
 
 ![demo](./demo.png)
 
