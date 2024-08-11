@@ -7,6 +7,7 @@ const Renderer = ({
   textCoordSoffset,
   isPointcloud,
   isIsoSurface,
+  isoValue,
   isHeatmapColor,
   isSignalIndex,
   signalIntensities,
@@ -33,6 +34,10 @@ const Renderer = ({
   useEffect(() => {
     ThreeApp.setIsIsoSurface(isIsoSurface);
   }, [isIsoSurface]);
+
+  useEffect(() => {
+    ThreeApp.setIsoValue(isoValue);
+  }, [isoValue]);
 
   useEffect(() => {
     ThreeApp.setIsHeatmapColor(isHeatmapColor);

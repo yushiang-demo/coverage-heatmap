@@ -143,6 +143,16 @@ class App {
   }
 
   /**
+   * Sets visuilizeation isoValue to show the isoSurface.
+   * @param {number} value A number in the range [0, 1.0] for the marching cubes algorithm to reconstruct the isoSurface.
+   * @example
+   * app.setIsoValue(true);
+   */
+  setIsoValue(value) {
+    this.isoSurface.setIsoValue(value);
+  }
+
+  /**
    * Sets whether to show the heatmap or not.
    * @param {boolean} data A boolean value indicating whether to show the heatmap.
    * @example

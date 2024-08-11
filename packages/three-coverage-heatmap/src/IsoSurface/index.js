@@ -3,24 +3,29 @@ import { MarchingCubes } from "three/addons/objects/MarchingCubes.js";
 
 class IsoSurface extends MarchingCubes {
   constructor(samplesY, samplesXZ, scale) {
-    super(
-      samplesXZ,
-      new THREE.MeshBasicMaterial({
-        color: "red",
-        side: THREE.BackSide,
-        opacity: 0.5,
-        transparent: true,
-      }),
-      true,
-      true,
-      100000
-    );
+    const material = new THREE.MeshBasicMaterial({
+      color: "red",
+      side: THREE.DoubleSide,
+      opacity: 0.5,
+      transparent: true,
+      // depthTest: false,
+    });
+    super(samplesXZ, material, true, true, 100000);
     this._samplesY = samplesY;
     this._samplesXZ = samplesXZ;
+    this._material = material;
 
     this.position.set(0, scale[1] / 2, 0);
     this.scale.set(scale[0] / 2, scale[1] / 2, scale[2] / 2);
-    this.isolation = 175;
+  }
+
+  setIsoValue(value) {
+    this.isolation = value * 255;
+
+    const color = new THREE.Color();
+    5;
+    color.setHSL(value, 1, 0.5);
+    this.material.color = color;
   }
 
   updateFromColors(colors) {

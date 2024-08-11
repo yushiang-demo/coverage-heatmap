@@ -124,6 +124,7 @@ const App = () => {
   const [hasFurniture, setHasFurniture] = useState(true);
   const [hasWall, setHasWall] = useState(true);
   const [doorPercentage, setDoorPercentage] = useState(0.5);
+  const [isoValue, setIsoValue] = useState(0.5);
 
   const [signalIntensities, setSignalIntensities] = useState([10, 10]);
   const [signals] = useState([
@@ -203,6 +204,17 @@ const App = () => {
         />
         <label htmlFor="isoSurface">show isoSurface</label>
         <br />
+        <label htmlFor="isoValue">isoValue</label>
+        <input
+          type="range"
+          id={"isoValue"}
+          min={1e-3}
+          max={1}
+          step={1e-2}
+          onChange={(e) => setIsoValue(e.target.value)}
+          value={isoValue}
+        />
+        <br />
         {signalIntensities.map((intensity, index) => {
           const id = `signal${index}_intensity`;
           return (
@@ -263,6 +275,7 @@ const App = () => {
         textCoordSoffset={[0.5, 0.5]}
         isPointcloud={isPointcloud}
         isIsoSurface={isIsoSurface}
+        isoValue={isoValue}
         isHeatmapColor={isHeatmapColor}
         isSignalIndex={isSignalIndex}
         signalIntensities={signalIntensities}
