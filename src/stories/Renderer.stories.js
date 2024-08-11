@@ -19,7 +19,7 @@ const args = {
   textCoordSoffset: [0.5, 0.5],
   isSignalIndex: false,
   isPointcloud: false,
-  isIsoSurface: false,
+  isIsosurface: false,
   isoValue: 0.5,
   isHeatmapColor: true,
   signalIntensities: [10, 10],
@@ -49,7 +49,7 @@ export const Pointcloud = {
 export const Isosurface = {
   args: {
     ...args,
-    isIsoSurface: true,
+    isIsourface: true,
     isoValue: 0.5,
     isHeatmapColor: false,
   },
