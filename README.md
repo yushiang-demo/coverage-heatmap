@@ -2,7 +2,7 @@
 
 Our project accurately simulates signal decay through obstacles, providing intensity estimates at each point. With support for real-time computation on mobile devices and easily extendable modules for complex scenarios, it offers a comprehensive toolkit for exploring signal transmission dynamics.
 
-![demo](./demo.jpg)
+![demo](./demo.png)
 
 # Quick start
 

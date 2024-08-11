@@ -237,10 +237,8 @@ class App {
     );
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    camera.position.set(0, 20, 100);
+    camera.position.set(-10, 20, -10);
     controls.update();
-
-    camera.position.z = 5;
 
     let frameIndex = 0;
     const animate = () => {

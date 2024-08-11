@@ -49,7 +49,7 @@ export const Pointcloud = {
 export const Isosurface = {
   args: {
     ...args,
-    isIsourface: true,
+    isIsosurface: true,
     isoValue: 0.5,
     isHeatmapColor: false,
   },
@@ -62,7 +62,7 @@ export const Heatmap = {
   },
 };
 
-export const HeatmapWotDoor = {
+export const HeatmapWoDoor = {
   args: {
     ...args,
     isHeatmapColor: true,
