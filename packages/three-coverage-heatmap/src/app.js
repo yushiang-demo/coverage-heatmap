@@ -2,20 +2,48 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import HeatmapMaterial from "./Material/HeatmapMaterial";
 import RoomBufferGeometry from "./Geometry/RoomBufferGeometry";
+import IsoSurface from "./IsoSurface";
+import UniformSampler3D from "./IsoSurface/UniformSampler3D";
 
 /** @class */
 class App {
   constructor() {
+    this._renderer = null;
     this._scene = new THREE.Scene();
+
+    const sizeXZ = 20;
+    const sizeY = 3;
+
+    const samplesY = 3 ** 2;
+    const samplesXZ = 50;
+    const samplesScale = [sizeXZ, sizeY, sizeXZ];
+    this.uniformSampler3D = new UniformSampler3D(
+      samplesY,
+      samplesXZ,
+      samplesScale
+    );
+    this.isoSurface = new IsoSurface(samplesY, samplesXZ, samplesScale);
 
     this.heatmapMaterial = new HeatmapMaterial();
     this.roomGeometry = new RoomBufferGeometry();
-    this.roomGeometry.setFloor(20, 20);
+    this.roomGeometry.setFloor(sizeXZ, sizeXZ);
     const room = new THREE.Mesh(this.roomGeometry, this.heatmapMaterial);
     this._scene.add(room);
 
     this._signalGroup = new THREE.Group();
     this._scene.add(this._signalGroup);
+  }
+
+  _updateSamples() {
+    if (!this._renderer) return;
+    const colors = this.uniformSampler3D.sample(this._renderer);
+    this.isoSurface.updateFromColors(colors);
+  }
+
+  _updateConfig(data) {
+    this.heatmapMaterial.setUniforms(data);
+    this.uniformSampler3D.setUniforms(data);
+    this._updateSamples();
   }
 
   /**
@@ -41,7 +69,7 @@ class App {
       this._signalGroup.add(accessPoint);
     });
 
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       signalCount: data.length,
       signals: data.map((arr) => new THREE.Vector3().fromArray(arr)),
     });
@@ -58,7 +86,7 @@ class App {
   setAABB(data) {
     if (!data) return;
     this.roomGeometry.setAABB(data);
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       aabbCount: data.length,
       aabbs: data.flatMap(([min, max]) => [
         new THREE.Vector3().fromArray(min),
@@ -78,12 +106,64 @@ class App {
   setPlane(data) {
     if (!data) return;
     this.roomGeometry.setPlane(data);
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       planeCount: data.length * 2,
       planes: data.flatMap(([min, max]) => [
         new THREE.Vector3().fromArray(min),
         new THREE.Vector3().fromArray(max),
       ]),
+    });
+  }
+
+  /**
+   * Sets whether to show the pointclod or not.
+   * @param {boolean} data A boolean value indicating whether to show the pointclod.
+   * @example
+   * app.setIsPointcloud(true);
+   */
+  setIsPointcloud(data) {
+    if (data) {
+      this._scene.add(this.uniformSampler3D._points);
+    } else {
+      this.uniformSampler3D._points.parent?.remove(
+        this.uniformSampler3D._points
+      );
+    }
+  }
+
+  /**
+   * Sets whether to show the isoSurface or not.
+   * @param {boolean} data A boolean value indicating whether to show the isoSurface.
+   * @example
+   * app.setIsIsoSurface(true);
+   */
+  setIsIsoSurface(data) {
+    if (data) {
+      this._scene.add(this.isoSurface);
+    } else {
+      this.isoSurface.parent?.remove(this.isoSurface);
+    }
+  }
+
+  /**
+   * Sets visuilizeation isoValue to show the isoSurface.
+   * @param {number} value A number in the range [0, 1.0] for the marching cubes algorithm to reconstruct the isoSurface.
+   * @example
+   * app.setIsoValue(true);
+   */
+  setIsoValue(value) {
+    this.isoSurface.setIsoValue(value);
+  }
+
+  /**
+   * Sets whether to show the heatmap or not.
+   * @param {boolean} data A boolean value indicating whether to show the heatmap.
+   * @example
+   * app.setIsHeatmapColor(true);
+   */
+  setIsHeatmapColor(data) {
+    this._updateConfig({
+      isHeatmapColor: data,
     });
   }
 
@@ -94,7 +174,7 @@ class App {
    * app.setIsSignalIndex(true);
    */
   setIsSignalIndex(data) {
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       isSignalIndex: data,
     });
   }
@@ -106,7 +186,7 @@ class App {
    * app.setSignalIntensities([0.2, 0.5, 0.8]);
    */
   setSignalIntensities(data) {
-    this.heatmapMaterial.setUniforms({
+    this._updateConfig({
       signalIntensities: data,
     });
   }
@@ -120,12 +200,18 @@ class App {
    * app.setTexture("https://example.com/floorplan.jpg", [1, 1], [0, 0]);
    */
   setTexture(url, scale, offset) {
-    const texture = new THREE.TextureLoader().load(url);
-    this.heatmapMaterial.setUniforms({
-      map: texture,
-      mapScale: new THREE.Vector2().fromArray(scale),
-      mapOffset: new THREE.Vector2().fromArray(offset),
-    });
+    if (url) {
+      const texture = new THREE.TextureLoader().load(url);
+      this._updateConfig({
+        map: texture,
+      });
+    }
+
+    if (scale && offset)
+      this._updateConfig({
+        mapScale: new THREE.Vector2().fromArray(scale),
+        mapOffset: new THREE.Vector2().fromArray(offset),
+      });
   }
 
   /**
@@ -177,6 +263,9 @@ class App {
     };
 
     animate();
+
+    this._renderer = renderer;
+    this._updateSamples();
 
     return {
       resizeCanvas,

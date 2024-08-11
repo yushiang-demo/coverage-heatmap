@@ -39,16 +39,16 @@ const wallsAABBs = [
     [8.34, 3, 8.7],
   ],
   [
-    [-9.65, 0, -9.55],
     [1.02, 3, -10],
+    [-9.65, 0, -9.55],
   ],
   [
-    [4.25, 0, -9.55],
     [8.34, 3, -10],
+    [4.25, 0, -9.55],
   ],
   [
-    [-9.55, 0, -10],
     [-10.0, 3, 8.7],
+    [-9.55, 0, -10],
   ],
   [
     [8.34, 0, -10],
@@ -117,10 +117,14 @@ const getPlanes = (percentage) => {
   ];
 };
 const App = () => {
+  const [isPointcloud, setIsPointcloud] = useState(false);
+  const [isIsoSurface, setIsIsoSurface] = useState(false);
+  const [isHeatmapColor, setIsHeatmapColor] = useState(false);
   const [isSignalIndex, setIsSignalIndex] = useState(false);
   const [hasFurniture, setHasFurniture] = useState(true);
   const [hasWall, setHasWall] = useState(true);
   const [doorPercentage, setDoorPercentage] = useState(0.5);
+  const [isoValue, setIsoValue] = useState(0.5);
 
   const [signalIntensities, setSignalIntensities] = useState([10, 10]);
   const [signals] = useState([
@@ -176,6 +180,41 @@ const App = () => {
           position: "fixed",
         }}
       >
+        <input
+          type="checkbox"
+          id={"heatmapColor"}
+          onChange={(e) => setIsHeatmapColor(e.target.checked)}
+          checked={isHeatmapColor}
+        />
+        <label htmlFor="heatmapColor">show heatmap</label>
+        <br />
+        <input
+          type="checkbox"
+          id={"pointcloud"}
+          onChange={(e) => setIsPointcloud(e.target.checked)}
+          checked={isPointcloud}
+        />
+        <label htmlFor="pointcloud">show pointcloud</label>
+        <br />
+        <input
+          type="checkbox"
+          id={"isoSurface"}
+          onChange={(e) => setIsIsoSurface(e.target.checked)}
+          checked={isIsoSurface}
+        />
+        <label htmlFor="isoSurface">show isoSurface</label>
+        <br />
+        <label htmlFor="isoValue">isoValue</label>
+        <input
+          type="range"
+          id={"isoValue"}
+          min={1e-3}
+          max={1}
+          step={1e-2}
+          onChange={(e) => setIsoValue(e.target.value)}
+          value={isoValue}
+        />
+        <br />
         {signalIntensities.map((intensity, index) => {
           const id = `signal${index}_intensity`;
           return (
@@ -234,6 +273,10 @@ const App = () => {
         texture={"/coverage-heatmap/floorplan.png"}
         textCoordScale={[1 / 20, 1 / 20]}
         textCoordSoffset={[0.5, 0.5]}
+        isPointcloud={isPointcloud}
+        isIsoSurface={isIsoSurface}
+        isoValue={isoValue}
+        isHeatmapColor={isHeatmapColor}
         isSignalIndex={isSignalIndex}
         signalIntensities={signalIntensities}
         signals={signals}

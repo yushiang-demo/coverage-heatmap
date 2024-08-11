@@ -8,106 +8,79 @@ export default {
   parameters: {
     layout: "fullscreen",
   },
-};
-
-export const ShowroomFloorAp = {
-  args: {
-    texture: "./floorplan.png",
-    textCoordScale: [1 / 20, 1 / 20],
-    textCoordSoffset: [0.5, 0.5],
-    isSignalIndex: false,
-    signalIntensities: [10],
-    signals: [[0, 1e-3, 8.1]],
-    aabbs: [...wallsAABBs, ...furnitureAABBs],
-    planes: getPlanes(0.8),
+  argTypes: {
+    isoValue: { control: { type: "range", min: 0.2, max: 1.0, step: 1e-2 } },
   },
 };
 
-export const ShowroomCeilingAp = {
+const args = {
+  texture: "./floorplan.png",
+  textCoordScale: [1 / 20, 1 / 20],
+  textCoordSoffset: [0.5, 0.5],
+  isSignalIndex: false,
+  isPointcloud: false,
+  isIsoSurface: false,
+  isoValue: 0.5,
+  isHeatmapColor: true,
+  signalIntensities: [10, 10],
+  signals: [
+    [0, 1.1, -4],
+    [0, 2.0, 8.1],
+  ],
+  aabbs: [...wallsAABBs, ...furnitureAABBs],
+  planes: getPlanes(0.8),
+};
+
+export const Texture = {
   args: {
-    texture: "./floorplan.png",
-    textCoordScale: [1 / 20, 1 / 20],
-    textCoordSoffset: [0.5, 0.5],
-    isSignalIndex: false,
-    signalIntensities: [10],
-    signals: [[0, 2.0, 8.1]],
-    aabbs: [...wallsAABBs, ...furnitureAABBs],
-    planes: getPlanes(0.8),
+    ...args,
+    isHeatmapColor: false,
   },
 };
 
-export const ShowroomTwoAps = {
+export const Pointcloud = {
   args: {
-    texture: "./floorplan.png",
-    textCoordScale: [1 / 20, 1 / 20],
-    textCoordSoffset: [0.5, 0.5],
-    isSignalIndex: false,
-    signalIntensities: [10, 10],
-    signals: [
-      [0, 1.1, -4],
-      [0, 2.0, 8.1],
-    ],
-    aabbs: [...wallsAABBs, ...furnitureAABBs],
-    planes: getPlanes(0.8),
+    ...args,
+    isPointcloud: true,
+    isHeatmapColor: false,
   },
 };
 
-export const ShowroomIndexMap = {
+export const Isosurface = {
   args: {
-    texture: "./floorplan.png",
-    textCoordScale: [1 / 20, 1 / 20],
-    textCoordSoffset: [0.5, 0.5],
-    isSignalIndex: true,
-    signalIntensities: [10, 10],
-    signals: [
-      [0, 1.1, -4],
-      [0, 2.0, 8.1],
-    ],
-    aabbs: [...wallsAABBs, ...furnitureAABBs],
-    planes: getPlanes(0.8),
+    ...args,
+    isIsoSurface: true,
+    isoValue: 0.5,
+    isHeatmapColor: false,
   },
 };
 
-export const withoutDoor = {
+export const Heatmap = {
   args: {
-    texture: "./floorplan.png",
-    textCoordScale: [1 / 20, 1 / 20],
-    textCoordSoffset: [0.5, 0.5],
-    isSignalIndex: false,
-    signalIntensities: [10, 10],
-    signals: [
-      [0, 1.1, -4],
-      [0, 2.0, 8.1],
-    ],
-    aabbs: [...wallsAABBs, ...furnitureAABBs],
+    ...args,
+    isHeatmapColor: true,
   },
 };
 
-export const withoutFurniture = {
+export const HeatmapWotDoor = {
   args: {
-    texture: "./floorplan.png",
-    textCoordScale: [1 / 20, 1 / 20],
-    textCoordSoffset: [0.5, 0.5],
-    isSignalIndex: false,
-    signalIntensities: [10, 10],
-    signals: [
-      [0, 1.1, -4],
-      [0, 2.0, 8.1],
-    ],
+    ...args,
+    isHeatmapColor: true,
+    planes: [],
+  },
+};
+
+export const HeatmapWoFurniture = {
+  args: {
+    ...args,
+    isHeatmapColor: true,
     aabbs: [...wallsAABBs],
   },
 };
 
-export const withoutWall = {
+export const IndexMap = {
   args: {
-    texture: "./floorplan.png",
-    textCoordScale: [1 / 20, 1 / 20],
-    textCoordSoffset: [0.5, 0.5],
-    isSignalIndex: false,
-    signalIntensities: [10, 10],
-    signals: [
-      [0, 1.1, -4],
-      [0, 2.0, 8.1],
-    ],
+    ...args,
+    isSignalIndex: true,
   },
 };

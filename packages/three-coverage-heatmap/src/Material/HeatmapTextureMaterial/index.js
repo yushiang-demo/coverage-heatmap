@@ -3,14 +3,14 @@ import { getVertexShader } from "./vertexShader";
 import { getFragmentShader } from "./fragmentShader";
 
 /**
- * Responsibles for rendering a heatmap visualization
+ * Responsibles for rendering a heatmap texture
  * based on the intensity of signals within a three-dimensional environment.
  * It provides a visually intuitive representation of signal strength,
  * allowing users to identify areas of high and low signal intensity.
  * @class
  * @extends THREE.ShaderMaterial
  */
-class HeatmapMaterial extends THREE.ShaderMaterial {
+class HeatmapTextureMaterial extends THREE.ShaderMaterial {
   static _getUniformLimitation() {
     return {
       MAX_SIGNAL_COUNT: 15,
@@ -21,25 +21,10 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
 
   constructor() {
     const { MAX_SIGNAL_COUNT, MAX_AABB_COUNT, MAX_PLANE_COUNT } =
-      HeatmapMaterial._getUniformLimitation();
+      HeatmapTextureMaterial._getUniformLimitation();
 
     super({
       uniforms: {
-        isHeatmapColor: {
-          value: true,
-        },
-        isSignalIndex: {
-          value: false,
-        },
-        mapScale: {
-          value: new THREE.Vector2(1, 1),
-        },
-        mapOffset: {
-          value: new THREE.Vector2(0, 0),
-        },
-        map: {
-          value: null,
-        },
         planeCount: {
           value: 0,
         },
@@ -74,8 +59,6 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
   /**
    * Sets uniforms for the application.
    * @param {Object} options - An object containing various uniform parameters.
-   * @param {boolean} options.isHeatmapColor - Indicates whether the uniform is for displaying the heatmap.
-   * @param {boolean} options.isSignalIndex - Indicates whether the uniform is for displaying the indexMap of coverage.
    * @param {number} options.planeCount - The count of planes.
    * @param {number} options.aabbCount - The count of axis-aligned bounding boxes.
    * @param {number} options.signalCount - The count of signals.
@@ -83,14 +66,9 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
    * @param {Array<number>} options.signalIntensities - An array containing signal intensities.
    * @param {Array<THREE.Vector3>} options.aabbs - An array containing axis-aligned bounding box data.
    * @param {Array<THREE.Vector3>} options.planes - An array containing plane data.
-   * @param {THREE.Texture} options.map - An object representing a map.
-   * @param {THREE.Vector2} options.mapScale - The scale factor to apply to the sampling coordinates.
-   * @param {THREE.Vector2} options.mapOffset - The offset for positioning the sampling coordinates.
    * @returns {void}
    */
   setUniforms({
-    isHeatmapColor,
-    isSignalIndex,
     planeCount,
     aabbCount,
     signalCount,
@@ -98,22 +76,11 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
     signalIntensities,
     aabbs,
     planes,
-    map,
-    mapScale,
-    mapOffset,
   }) {
     const { MAX_SIGNAL_COUNT, MAX_AABB_COUNT, MAX_PLANE_COUNT } =
-      HeatmapMaterial._getUniformLimitation();
+      HeatmapTextureMaterial._getUniformLimitation();
 
     const isDefined = (value) => value !== undefined;
-
-    if (isDefined(isHeatmapColor)) {
-      this.uniforms.isHeatmapColor.value = isHeatmapColor;
-    }
-
-    if (isDefined(isSignalIndex)) {
-      this.uniforms.isSignalIndex.value = isSignalIndex;
-    }
 
     if (isDefined(planeCount)) {
       this.uniforms.planeCount.value = planeCount;
@@ -154,19 +121,7 @@ class HeatmapMaterial extends THREE.ShaderMaterial {
         ...Array(MAX_PLANE_COUNT * 2 - planes.length).fill(new THREE.Vector3()),
       ];
     }
-
-    if (map) {
-      this.uniforms.map.value = map;
-    }
-
-    if (mapScale) {
-      this.uniforms.mapScale.value = mapScale;
-    }
-
-    if (mapOffset) {
-      this.uniforms.mapOffset.value = mapOffset;
-    }
   }
 }
 
-export default HeatmapMaterial;
+export default HeatmapTextureMaterial;
