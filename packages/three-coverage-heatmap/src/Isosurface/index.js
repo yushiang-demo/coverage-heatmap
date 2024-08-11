@@ -1,14 +1,12 @@
 import * as THREE from "three";
 import { MarchingCubes } from "three/addons/objects/MarchingCubes.js";
 
-class IsoSurface extends MarchingCubes {
+class Isosurface extends MarchingCubes {
   constructor(samplesY, samplesXZ, scale) {
     const material = new THREE.MeshBasicMaterial({
-      color: "red",
-      side: THREE.DoubleSide,
-      opacity: 0.5,
+      side: THREE.BackSide,
+      opacity: 0.3,
       transparent: true,
-      // depthTest: false,
     });
     super(samplesXZ, material, true, true, 100000);
     this._samplesY = samplesY;
@@ -49,11 +47,14 @@ class IsoSurface extends MarchingCubes {
             this._samplesXZ ** 2 +
           z * this._samplesXZ +
           x;
-        this.setCell(x, y, z, colors[index * 4]);
+        const isBoundary = [x, y, z].some(
+          (index) => index <= 1 || index >= this._samplesXZ - 2
+        );
+        this.setCell(x, y, z, !isBoundary ? colors[index * 4] : 0);
       });
 
     this.update();
   }
 }
 
-export default IsoSurface;
+export default Isosurface;

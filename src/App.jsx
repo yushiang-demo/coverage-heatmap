@@ -118,7 +118,7 @@ const getPlanes = (percentage) => {
 };
 const App = () => {
   const [isPointcloud, setIsPointcloud] = useState(false);
-  const [isIsoSurface, setIsIsoSurface] = useState(false);
+  const [isIsosurface, setIsIsosurface] = useState(false);
   const [isHeatmapColor, setIsHeatmapColor] = useState(false);
   const [isSignalIndex, setIsSignalIndex] = useState(false);
   const [hasFurniture, setHasFurniture] = useState(true);
@@ -198,17 +198,17 @@ const App = () => {
         <br />
         <input
           type="checkbox"
-          id={"isoSurface"}
-          onChange={(e) => setIsIsoSurface(e.target.checked)}
-          checked={isIsoSurface}
+          id={"isosurface"}
+          onChange={(e) => setIsIsosurface(e.target.checked)}
+          checked={isIsosurface}
         />
-        <label htmlFor="isoSurface">show isoSurface</label>
+        <label htmlFor="isosurface">show isosurface</label>
         <br />
         <label htmlFor="isoValue">isoValue</label>
         <input
           type="range"
           id={"isoValue"}
-          min={1e-3}
+          min={0.2}
           max={1}
           step={1e-2}
           onChange={(e) => setIsoValue(e.target.value)}
@@ -274,7 +274,7 @@ const App = () => {
         textCoordScale={[1 / 20, 1 / 20]}
         textCoordSoffset={[0.5, 0.5]}
         isPointcloud={isPointcloud}
-        isIsoSurface={isIsoSurface}
+        isIsosurface={isIsosurface}
         isoValue={isoValue}
         isHeatmapColor={isHeatmapColor}
         isSignalIndex={isSignalIndex}

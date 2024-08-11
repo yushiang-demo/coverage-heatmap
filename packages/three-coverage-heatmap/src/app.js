@@ -2,8 +2,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import HeatmapMaterial from "./Material/HeatmapMaterial";
 import RoomBufferGeometry from "./Geometry/RoomBufferGeometry";
-import IsoSurface from "./IsoSurface";
-import UniformSampler3D from "./IsoSurface/UniformSampler3D";
+import Isosurface from "./Isosurface";
+import UniformSampler3D from "./Isosurface/UniformSampler3D";
 
 /** @class */
 class App {
@@ -14,15 +14,15 @@ class App {
     const sizeXZ = 20;
     const sizeY = 3;
 
-    const samplesY = 3 ** 2;
-    const samplesXZ = 50;
+    const samplesY = 4 ** 2;
+    const samplesXZ = 25;
     const samplesScale = [sizeXZ, sizeY, sizeXZ];
     this.uniformSampler3D = new UniformSampler3D(
       samplesY,
       samplesXZ,
       samplesScale
     );
-    this.isoSurface = new IsoSurface(samplesY, samplesXZ, samplesScale);
+    this.isosurface = new Isosurface(samplesY, samplesXZ, samplesScale);
 
     this.heatmapMaterial = new HeatmapMaterial();
     this.roomGeometry = new RoomBufferGeometry();
@@ -37,7 +37,7 @@ class App {
   _updateSamples() {
     if (!this._renderer) return;
     const colors = this.uniformSampler3D.sample(this._renderer);
-    this.isoSurface.updateFromColors(colors);
+    this.isosurface.updateFromColors(colors);
   }
 
   _updateConfig(data) {
@@ -135,24 +135,24 @@ class App {
    * Sets whether to show the isoSurface or not.
    * @param {boolean} data A boolean value indicating whether to show the isoSurface.
    * @example
-   * app.setIsIsoSurface(true);
+   * app.setIsIsosurface(true);
    */
-  setIsIsoSurface(data) {
+  setIsIsosurface(data) {
     if (data) {
-      this._scene.add(this.isoSurface);
+      this._scene.add(this.isosurface);
     } else {
-      this.isoSurface.parent?.remove(this.isoSurface);
+      this.isosurface.parent?.remove(this.isosurface);
     }
   }
 
   /**
-   * Sets visuilizeation isoValue to show the isoSurface.
-   * @param {number} value A number in the range [0, 1.0] for the marching cubes algorithm to reconstruct the isoSurface.
+   * Sets visuilizeation isoValue to show the isosurface.
+   * @param {number} value A number in the range [0, 1.0] for the marching cubes algorithm to reconstruct the isosurface.
    * @example
    * app.setIsoValue(true);
    */
   setIsoValue(value) {
-    this.isoSurface.setIsoValue(value);
+    this.isosurface.setIsoValue(value);
   }
 
   /**
