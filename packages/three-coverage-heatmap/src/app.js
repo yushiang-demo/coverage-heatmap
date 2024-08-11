@@ -34,13 +34,16 @@ class App {
     this._scene.add(this._signalGroup);
   }
 
+  _updateSamples() {
+    if (!this._renderer) return;
+    const colors = this.uniformSampler3D.sample(this._renderer);
+    this.isoSurface.updateFromColors(colors);
+  }
+
   _updateConfig(data) {
     this.heatmapMaterial.setUniforms(data);
     this.uniformSampler3D.setUniforms(data);
-    if (this._renderer) {
-      const colors = this.uniformSampler3D.sample(this._renderer);
-      this.isoSurface.updateFromColors(colors);
-    }
+    this._updateSamples();
   }
 
   /**
@@ -262,6 +265,7 @@ class App {
     animate();
 
     this._renderer = renderer;
+    this._updateSamples();
 
     return {
       resizeCanvas,

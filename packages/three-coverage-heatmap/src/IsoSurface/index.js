@@ -26,6 +26,7 @@ class IsoSurface extends MarchingCubes {
     5;
     color.setHSL(value, 1, 0.5);
     this.material.color = color;
+    this.update();
   }
 
   updateFromColors(colors) {
