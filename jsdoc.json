@@ -14,21 +14,21 @@
     "theme_opts": {
       "default_theme": "light",
       "title": "Three Coverage Heatmap",
-      "base_url": "https://yushiang-demo.github.io/coverage-heatmap/doc/",
+      "base_url": "https://yushiang-demo.github.io/coverage-visualizer/doc/",
       "menu": [
         {
           "title": "Demo",
-          "link": "/coverage-heatmap",
+          "link": "/coverage-visualizer",
           "target": "_blank"
         },
         {
           "title": "Github",
-          "link": "https://github.com/yushiang-demo/coverage-heatmap",
+          "link": "https://github.com/yushiang-demo/coverage-visualizer",
           "target": "_blank"
         },
         {
           "title": "React Coverage Heatmap",
-          "link": "/coverage-heatmap/storybook/",
+          "link": "/coverage-visualizer/storybook/",
           "target": "_blank"
         }
       ]
