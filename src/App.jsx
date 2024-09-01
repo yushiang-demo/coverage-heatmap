@@ -168,11 +168,11 @@ const App = () => {
           padding: "10px",
         }}
       >
-        <a href={"https://github.com/yushiang-demo/coverage-heatmap"}>
-          <img width="40px" src="/coverage-heatmap/github.svg" />
+        <a href={"/"}>
+          <img width="40px" src="./github.svg" />
         </a>
-        <a href={"/coverage-heatmap/doc/"}>
-          <img width="40px" src="/coverage-heatmap/doc.svg" />
+        <a href={"/doc/"}>
+          <img width="40px" src="/doc.svg" />
         </a>
       </div>
       <div
@@ -270,7 +270,7 @@ const App = () => {
         <br />
       </div>
       <Renderer
-        texture={"/coverage-heatmap/floorplan.png"}
+        texture={"./floorplan.png"}
         textCoordScale={[1 / 20, 1 / 20]}
         textCoordSoffset={[0.5, 0.5]}
         isPointcloud={isPointcloud}
