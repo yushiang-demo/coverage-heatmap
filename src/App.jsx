@@ -171,8 +171,8 @@ const App = () => {
         <a href={"/"}>
           <img width="40px" src="./github.svg" />
         </a>
-        <a href={"/doc/"}>
-          <img width="40px" src="/doc.svg" />
+        <a href={"./doc/"}>
+          <img width="40px" src="./doc.svg" />
         </a>
       </div>
       <div
