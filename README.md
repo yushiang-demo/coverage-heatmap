@@ -1,4 +1,4 @@
-# 3D Coverage Heatmap
+# 3D Coverage Visualizer
 
 Our project demonstrates the functionality of signal decay simulation through obstacles, providing intensity estimates at various points for visualization purposes. It supports real-time computation on mobile devices and features easily extendable modules for exploring complex scenarios. Note that while the intensity values are used for visualization, they do not reflect real-world signal behavior.
 
